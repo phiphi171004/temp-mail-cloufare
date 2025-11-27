@@ -294,9 +294,6 @@ export class TempMail {
     try {
       const response = await this.client.sendRequest(createPayload);
       
-      // Debug: Log response để kiểm tra
-      console.log(`[createEmailTMail] Response received:`, JSON.stringify(response).substring(0, 500));
-      
       // Update email và emails từ response
       if (response.components && response.components[0]) {
         const component = response.components[0];
@@ -304,7 +301,6 @@ export class TempMail {
         if (component.snapshot) {
           try {
             const snapshotData = JSON.parse(component.snapshot);
-            console.log(`[createEmailTMail] Snapshot data:`, JSON.stringify(snapshotData.data).substring(0, 300));
             if (snapshotData.data && snapshotData.data.email) {
               const oldEmail = this.currentEmail;
               this.currentEmail = snapshotData.data.email;
@@ -316,46 +312,25 @@ export class TempMail {
               if (snapshotData.data.emails && Array.isArray(snapshotData.data.emails[0])) {
                 this.emails = snapshotData.data.emails[0];
               }
-            } else {
-              console.log(`[createEmailTMail] Snapshot không có email, snapshotData.data:`, snapshotData.data);
             }
           } catch (e) {
-            console.log(`[createEmailTMail] Error parsing snapshot:`, e.message);
-            console.log(`[createEmailTMail] Snapshot raw:`, component.snapshot.substring(0, 200));
-            console.log(`[createEmailTMail] Using newEmail: ${newEmail}`);
+            console.log(`[createEmailTMail] Error parsing snapshot, using newEmail: ${newEmail}`);
             this.currentEmail = newEmail;
             if (!this.emails.includes(this.currentEmail)) {
               this.emails.push(this.currentEmail);
             }
           }
         } else {
-          console.log(`[createEmailTMail] No snapshot in response, component:`, JSON.stringify(component).substring(0, 300));
-          console.log(`[createEmailTMail] Using newEmail: ${newEmail}`);
+          console.log(`[createEmailTMail] No snapshot in response, using newEmail: ${newEmail}`);
           this.currentEmail = newEmail;
           if (!this.emails.includes(this.currentEmail)) {
             this.emails.push(this.currentEmail);
           }
         }
-      } else {
-        console.log(`[createEmailTMail] No components in response, response:`, JSON.stringify(response).substring(0, 300));
-        // Fallback: dùng newEmail nếu không có response
-        this.currentEmail = newEmail;
-        if (!this.emails.includes(this.currentEmail)) {
-          this.emails.push(this.currentEmail);
-        }
       }
 
       if (response.components && response.components[0] && response.components[0].effects && response.components[0].effects.redirect) {
         // Redirect được xử lý tự động
-      }
-
-      // Fallback: Nếu vẫn không có email, dùng newEmail
-      if (!this.currentEmail) {
-        console.log(`[createEmailTMail] Fallback: Using newEmail: ${newEmail}`);
-        this.currentEmail = newEmail;
-        if (!this.emails.includes(this.currentEmail)) {
-          this.emails.push(this.currentEmail);
-        }
       }
 
       // BƯỚC 3: Gọi syncEmail + fetchMessages
@@ -367,19 +342,10 @@ export class TempMail {
         this.domain = selectedDomain;
       }
 
-      // Đảm bảo có email trước khi return
-      const finalEmail = this.currentEmail || newEmail;
-      if (!this.currentEmail) {
-        this.currentEmail = finalEmail;
-        if (!this.emails.includes(this.currentEmail)) {
-          this.emails.push(this.currentEmail);
-        }
-      }
-
       return {
         success: true,
-        email: finalEmail,
-        message: `Email tạm đã được tạo: ${finalEmail}`
+        email: this.currentEmail,
+        message: `Email tạm đã được tạo: ${this.currentEmail}`
       };
     } catch (error) {
       return {

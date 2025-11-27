@@ -7,12 +7,7 @@ import { CONFIG } from './config.js';
  */
 export class TempMailIDClient {
   constructor() {
-    // Nếu dùng Cloudflare Worker, route qua Worker
-    if (CONFIG.USE_CLOUDFLARE_WORKER && CONFIG.CLOUDFLARE_WORKER_URL) {
-      this.baseURL = CONFIG.CLOUDFLARE_WORKER_URL + '/tempmail-id';
-    } else {
-      this.baseURL = 'https://tempmail.id.vn/api';
-    }
+    this.baseURL = 'https://tempmail.id.vn/api';
     this.apiToken = CONFIG.TEMPMAIL_ID_API_TOKEN || '';
     this.currentEmail = null;
     this.currentEmailId = null;

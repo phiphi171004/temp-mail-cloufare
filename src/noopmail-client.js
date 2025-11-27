@@ -7,12 +7,7 @@ import * as cheerio from 'cheerio';
  */
 export class NoopMailClient {
   constructor() {
-    // Nếu dùng Cloudflare Worker, route qua Worker
-    if (CONFIG.USE_CLOUDFLARE_WORKER && CONFIG.CLOUDFLARE_WORKER_URL) {
-      this.baseURL = CONFIG.CLOUDFLARE_WORKER_URL + '/noopmail';
-    } else {
-      this.baseURL = 'https://noopmail.org';
-    }
+    this.baseURL = 'https://noopmail.org';
     this.domains = [];
     this.currentEmail = null;
     this.currentDomain = null;

@@ -8,15 +8,7 @@ import * as cheerio from 'cheerio';
  */
 export class LivewireClient {
   constructor() {
-    // Nếu dùng Cloudflare Worker, route qua Worker
-    if (CONFIG.USE_CLOUDFLARE_WORKER && CONFIG.CLOUDFLARE_WORKER_URL) {
-      // Đảm bảo không có trailing slash ở Worker URL
-      const workerUrl = CONFIG.CLOUDFLARE_WORKER_URL.replace(/\/$/, '');
-      this.baseURL = workerUrl + '/tmail';
-      console.log(`[LivewireClient] Using Cloudflare Worker: ${this.baseURL}`);
-    } else {
-      this.baseURL = CONFIG.BASE_URL;
-    }
+    this.baseURL = CONFIG.BASE_URL;
     this.apiEndpoint = CONFIG.API_ENDPOINT;
     this.csrfToken = null;
     this.cookies = {};
@@ -89,16 +81,10 @@ export class LivewireClient {
   async initialize() {
     try {
       console.log('\n=== INITIALIZING SESSION ===');
-      if (CONFIG.USE_CLOUDFLARE_WORKER && CONFIG.CLOUDFLARE_WORKER_URL) {
-        console.log(`Mode: CLOUDFLARE_WORKER (${CONFIG.CLOUDFLARE_WORKER_URL})`);
-      } else {
-        console.log(`Mode: ${CONFIG.USE_PROXY ? 'PROXY (ScraperAPI)' : 'DIRECT'}`);
-      }
+      console.log(`Mode: ${CONFIG.USE_PROXY ? 'PROXY (ScraperAPI)' : 'DIRECT'}`);
       
       const startTime = Date.now();
-      // Nếu dùng Worker, không dùng ScraperAPI proxy
-      const useProxy = CONFIG.USE_PROXY && !CONFIG.USE_CLOUDFLARE_WORKER;
-      const targetUrl = this.buildProxyURL(this.baseURL, useProxy);
+      const targetUrl = this.buildProxyURL(this.baseURL, false);
       
       if (CONFIG.USE_PROXY) {
         console.log('🔄 Using ScraperAPI to bypass Cloudflare');
@@ -108,13 +94,8 @@ export class LivewireClient {
       const response = await axios.get(targetUrl, {
         headers: {
           'user-agent': CONFIG.HEADERS['user-agent'],
-          'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-          // Forward cookies nếu có
-          ...(this.getCookieString() ? { 'cookie': this.getCookieString() } : {})
-        },
-        // Cho phép redirect và handle cookies
-        maxRedirects: 5,
-        validateStatus: () => true // Không throw error cho mọi status code
+          'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        }
       });
       
       if (CONFIG.USE_PROXY) {
@@ -138,28 +119,21 @@ export class LivewireClient {
       }
 
       // Lấy cookies từ response (FIX: parse đúng với value có nhiều dấu =)
-      // Khi dùng Worker, cookies có thể ở trong response headers hoặc Set-Cookie
-      const setCookies = response.headers['set-cookie'] || response.headers['Set-Cookie'];
+      const setCookies = response.headers['set-cookie'];
       if (setCookies) {
-        // Handle cả array và string
-        const cookiesArray = Array.isArray(setCookies) ? setCookies : [setCookies];
-        console.log(`\n✓ Received ${cookiesArray.length} cookies:`);
-        cookiesArray.forEach(cookie => {
+        console.log(`\n✓ Received ${setCookies.length} cookies:`);
+        setCookies.forEach(cookie => {
           const [nameValue] = cookie.split(';');
           const firstEqualIndex = nameValue.indexOf('=');
           if (firstEqualIndex > 0) {
-            const name = nameValue.substring(0, firstEqualIndex).trim();
-            const value = nameValue.substring(firstEqualIndex + 1).trim();
+            const name = nameValue.substring(0, firstEqualIndex);
+            const value = nameValue.substring(firstEqualIndex + 1);
             this.cookies[name] = value;
             console.log(`  - ${name}: ${value.substring(0, 50)}${value.length > 50 ? '...' : ''}`);
           }
         });
       } else {
         console.log('✗ No cookies received!');
-        // Debug: log tất cả response headers để kiểm tra
-        if (CONFIG.USE_CLOUDFLARE_WORKER) {
-          console.log('Response headers:', Object.keys(response.headers));
-        }
       }
 
       // Parse initial component snapshots từ HTML
