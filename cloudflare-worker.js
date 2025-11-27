@@ -15,31 +15,37 @@
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    const path = url.pathname + url.search;
+    let path = url.pathname;
+    const search = url.search;
     
     // Xác định target API dựa trên path
     let targetBase = '';
-    let newPath = path;
+    let newPath = '';
     
     // Nếu path bắt đầu bằng /tempmail-id → proxy đến tempmail.id.vn
     if (path.startsWith('/tempmail-id')) {
       targetBase = 'https://tempmail.id.vn/api';
-      newPath = path.replace('/tempmail-id', '');
+      newPath = path.replace('/tempmail-id', '') || '/';
     }
     // Nếu path bắt đầu bằng /noopmail → proxy đến noopmail.org
     else if (path.startsWith('/noopmail')) {
       targetBase = 'https://noopmail.org';
-      newPath = path.replace('/noopmail', '');
+      newPath = path.replace('/noopmail', '') || '/';
     }
     // Nếu path bắt đầu bằng /tmail → proxy đến tmail.mmocommunity.io.vn
     else if (path.startsWith('/tmail')) {
       targetBase = 'https://tmail.mmocommunity.io.vn';
-      newPath = path.replace('/tmail', '');
+      newPath = path.replace('/tmail', '') || '/';
     }
     // Default: proxy đến tempmail.id.vn
     else {
       targetBase = 'https://tempmail.id.vn/api';
-      newPath = path;
+      newPath = path || '/';
+    }
+    
+    // Thêm search params nếu có
+    if (search) {
+      newPath += search;
     }
     
     // Tạo target URL

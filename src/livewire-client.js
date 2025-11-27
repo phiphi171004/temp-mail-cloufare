@@ -10,7 +10,10 @@ export class LivewireClient {
   constructor() {
     // Nếu dùng Cloudflare Worker, route qua Worker
     if (CONFIG.USE_CLOUDFLARE_WORKER && CONFIG.CLOUDFLARE_WORKER_URL) {
-      this.baseURL = CONFIG.CLOUDFLARE_WORKER_URL + '/tmail';
+      // Đảm bảo không có trailing slash ở Worker URL
+      const workerUrl = CONFIG.CLOUDFLARE_WORKER_URL.replace(/\/$/, '');
+      this.baseURL = workerUrl + '/tmail';
+      console.log(`[LivewireClient] Using Cloudflare Worker: ${this.baseURL}`);
     } else {
       this.baseURL = CONFIG.BASE_URL;
     }
@@ -86,10 +89,16 @@ export class LivewireClient {
   async initialize() {
     try {
       console.log('\n=== INITIALIZING SESSION ===');
-      console.log(`Mode: ${CONFIG.USE_PROXY ? 'PROXY (ScraperAPI)' : 'DIRECT'}`);
+      if (CONFIG.USE_CLOUDFLARE_WORKER && CONFIG.CLOUDFLARE_WORKER_URL) {
+        console.log(`Mode: CLOUDFLARE_WORKER (${CONFIG.CLOUDFLARE_WORKER_URL})`);
+      } else {
+        console.log(`Mode: ${CONFIG.USE_PROXY ? 'PROXY (ScraperAPI)' : 'DIRECT'}`);
+      }
       
       const startTime = Date.now();
-      const targetUrl = this.buildProxyURL(this.baseURL, false);
+      // Nếu dùng Worker, không dùng ScraperAPI proxy
+      const useProxy = CONFIG.USE_PROXY && !CONFIG.USE_CLOUDFLARE_WORKER;
+      const targetUrl = this.buildProxyURL(this.baseURL, useProxy);
       
       if (CONFIG.USE_PROXY) {
         console.log('🔄 Using ScraperAPI to bypass Cloudflare');
