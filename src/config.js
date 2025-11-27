@@ -29,6 +29,10 @@ export const CONFIG = {
   SCRAPERAPI_KEY: process.env.SCRAPERAPI_KEY || '',
   SCRAPERAPI_URL: 'http://api.scraperapi.com',
   
+  // Cloudflare Worker Proxy (ưu tiên hơn ScraperAPI)
+  USE_CLOUDFLARE_WORKER: process.env.USE_CLOUDFLARE_WORKER === 'true',
+  CLOUDFLARE_WORKER_URL: process.env.CLOUDFLARE_WORKER_URL || '', // Ví dụ: https://tempmail-proxy.your-subdomain.workers.dev
+  
   HEADERS: {
     'accept': '*/*',
     'accept-encoding': 'gzip, deflate, br, zstd',

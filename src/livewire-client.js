@@ -8,7 +8,12 @@ import * as cheerio from 'cheerio';
  */
 export class LivewireClient {
   constructor() {
-    this.baseURL = CONFIG.BASE_URL;
+    // Nếu dùng Cloudflare Worker, route qua Worker
+    if (CONFIG.USE_CLOUDFLARE_WORKER && CONFIG.CLOUDFLARE_WORKER_URL) {
+      this.baseURL = CONFIG.CLOUDFLARE_WORKER_URL + '/tmail';
+    } else {
+      this.baseURL = CONFIG.BASE_URL;
+    }
     this.apiEndpoint = CONFIG.API_ENDPOINT;
     this.csrfToken = null;
     this.cookies = {};
