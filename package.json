@@ -1,0 +1,35 @@
+{
+  "name": "tempmail-node",
+  "version": "1.0.0",
+  "description": "Temp Mail API Client - Tạo email tạm thời và nhận thư",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "server": "node src/server.js",
+    "test": "node src/test.js",
+    "test:proxy": "node src/test-proxy.js"
+  },
+  "keywords": [
+    "tempmail",
+    "temporary-email",
+    "disposable-email",
+    "fake-email"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "boxen": "^7.1.1",
+    "chalk": "^5.3.0",
+    "cheerio": "^1.0.0-rc.12",
+    "dotenv": "^17.2.3",
+    "express": "^4.18.2",
+    "inquirer": "^9.2.12",
+    "ora": "^7.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

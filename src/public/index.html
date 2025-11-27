@@ -1,0 +1,2541 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TempMail - Email Tạm Thời</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%236366f1;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%238b5cf6;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Cpath d='M30 35 L50 50 L70 35 M30 35 L30 65 L70 65 L70 35' stroke='white' stroke-width='4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%236366f1;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%238b5cf6;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Cpath d='M30 35 L50 50 L70 35 M30 35 L30 65 L70 65 L70 35' stroke='white' stroke-width='4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1e293b;
+            --light: #f1f5f9;
+            --gray: #64748b;
+            --border: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--dark);
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        /* Main Card */
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Email Display Section */
+        .email-section {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 30px;
+            color: white;
+        }
+
+        .email-display {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .email-display i {
+            font-size: 2rem;
+        }
+
+        .email-content {
+            flex: 1;
+        }
+
+        .email-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .email-address {
+            font-size: 1.3rem;
+            font-weight: 600;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+        }
+
+        .email-empty {
+            opacity: 0.7;
+            font-style: italic;
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Controls Section */
+        .controls-section {
+            padding: 30px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            /* TỐI ƯU: Giữ nguyên kích thước khi loading */
+            position: relative;
+            min-height: 44px; /* Đảm bảo chiều cao tối thiểu */
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-secondary {
+            background: var(--light);
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Info Cards Container - Container cho 2 khung IP và Time */
+        .info-cards-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            justify-content: center;
+        }
+
+        /* IP Info Card - max-width 900px */
+        .ip-info-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 15px 20px;
+            flex: 0 0 auto;
+            min-width: 0;
+            max-width: 900px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Time Card - max-width 300px */
+        .time-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            flex: 0 0 auto;
+            min-width: 0;
+            max-width: 300px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .time-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--light-gray);
+        }
+
+        .time-header i {
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .time-header h3 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .time-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .time-display {
+            text-align: center;
+        }
+
+        .time-main {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .time-separator {
+            margin: 0 5px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .time-date {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .time-day {
+            background: var(--primary);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Contact Admin Card */
+        .contact-admin-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 25px 30px;
+            margin-top: 20px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 1200px;
+            box-sizing: border-box;
+        }
+
+        .contact-admin-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+        }
+
+        .contact-admin-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--dark);
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .contact-admin-link:hover {
+            color: var(--primary);
+        }
+
+        .contact-admin-link i:first-child {
+            font-size: 1.5rem;
+            color: #0088cc;
+        }
+
+        .contact-admin-link i:last-child {
+            font-size: 0.9rem;
+            color: var(--gray);
+            opacity: 0.7;
+        }
+
+        .contact-admin-link:hover i:last-child {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        /* Responsive cho tablet */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .main-card {
+                border-radius: 15px;
+            }
+
+            .ip-info-card,
+            .time-card {
+                padding: 20px;
+                border-radius: 15px;
+            }
+
+            .time-main {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Responsive cho mobile */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .main-card {
+                border-radius: 15px;
+            }
+
+            .info-cards-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .ip-info-card,
+            .time-card {
+                flex: 1 1 100%;
+                max-width: 100%;
+                padding: 20px;
+                border-radius: 15px;
+                margin-left: 0;
+            }
+
+            .contact-admin-card {
+                margin-left: 0;
+            }
+
+            .time-main {
+                font-size: 2rem;
+            }
+
+            .time-date {
+                font-size: 1rem;
+            }
+
+            .ip-info-content {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .ip-info-item {
+                width: 100%;
+            }
+
+            .contact-admin-card {
+                padding: 20px 15px;
+                border-radius: 15px;
+            }
+
+            .contact-admin-link {
+                font-size: 1rem;
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Responsive cho mobile nhỏ */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .header p {
+                font-size: 0.9rem;
+            }
+
+            .time-main {
+                font-size: 1.5rem;
+            }
+
+            .ip-info-card,
+            .time-card,
+            .contact-admin-card {
+                padding: 15px;
+            }
+
+            .ip-info-header h3,
+            .time-header h3 {
+                font-size: 1.1rem;
+            }
+        }
+
+        .ip-info-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--light-gray);
+        }
+
+        .ip-info-header i {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .ip-info-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .ip-info-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .ip-info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: var(--light-gray);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .ip-info-item:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+        }
+
+        .ip-info-item i {
+            color: var(--primary);
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .ip-info-item strong {
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .ip-info-item span {
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .ip-info-loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--gray);
+            font-size: 0.95rem;
+            padding: 20px;
+        }
+
+        .ip-info-loading i {
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        /* Inbox Section */
+        .inbox-section {
+            padding: 30px;
+        }
+
+        .inbox-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .inbox-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .inbox-count {
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Message Cards */
+        .messages-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .message-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.15);
+            transform: translateX(5px);
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 15px;
+        }
+
+        .message-info {
+            flex: 1;
+        }
+
+        .message-sender {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .message-sender i {
+            color: var(--primary);
+        }
+
+        .message-email {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-left: 24px;
+        }
+
+        .message-subject {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-top: 8px;
+        }
+
+        .message-time {
+            font-size: 0.85rem;
+            color: var(--gray);
+            white-space: nowrap;
+        }
+
+        .message-preview {
+            margin-top: 10px;
+            color: var(--gray);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Message Detail View */
+        .message-detail-view {
+            display: none;
+        }
+
+        .message-detail-view.show {
+            display: block;
+        }
+
+        .messages-list-view.hide {
+            display: none;
+        }
+
+        .detail-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            background: white;
+            color: var(--primary);
+            border: 2px solid white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-btn:hover {
+            background: var(--light);
+            transform: translateX(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .back-btn i {
+            transition: transform 0.3s;
+        }
+
+        .back-btn:hover i {
+            transform: translateX(-3px);
+        }
+
+        .detail-subject {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .detail-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+            opacity: 0.95;
+        }
+
+        .detail-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .detail-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            line-height: 1.7;
+            color: var(--dark);
+            min-height: 300px;
+        }
+
+        .detail-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .detail-content a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .detail-content a:hover {
+            text-decoration: underline;
+        }
+
+        .message-attachments {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: var(--light);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: var(--secondary);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            opacity: 0.3;
+            margin-bottom: 20px;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 25px 30px;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray);
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: var(--light);
+            color: var(--dark);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-input, .form-select {
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .modal-footer {
+            padding: 20px 30px;
+            border-top: 2px solid var(--border);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        .toast.info {
+            border-left: 4px solid var(--primary);
+        }
+
+        .toast i {
+            font-size: 1.5rem;
+        }
+
+        .toast.success i {
+            color: var(--success);
+        }
+
+        .toast.error i {
+            color: var(--danger);
+        }
+
+        .toast.info i {
+            color: var(--primary);
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-message {
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .button-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .message-header {
+                flex-direction: column;
+            }
+
+            .email-display {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .toast {
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-card {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .loading-content .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        .loading-content p {
+            color: var(--dark);
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        /* Button Loading State */
+        .btn.loading {
+            position: relative;
+            pointer-events: none;
+            /* TỐI ƯU: Giữ nguyên kích thước button khi loading */
+            min-width: fit-content;
+        }
+
+        /* Ẩn text và icon khi loading nhưng giữ không gian */
+        .btn.loading > * {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* Hiện spinner khi loading */
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            z-index: 1;
+        }
+
+        /* Spinner cho button secondary (màu tối) */
+        .btn-secondary.loading::after {
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            border-top-color: var(--dark);
+        }
+
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s ease-in-out infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-message {
+            padding: 20px;
+            margin-bottom: 12px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .skeleton-message .skeleton-line {
+            height: 16px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+        }
+
+        .skeleton-message .skeleton-line:first-child {
+            width: 60%;
+        }
+
+        .skeleton-message .skeleton-line:nth-child(2) {
+            width: 40%;
+        }
+
+        .skeleton-message .skeleton-line:nth-child(3) {
+            width: 80%;
+        }
+
+        .skeleton-message .skeleton-line:last-child {
+            width: 30%;
+            margin-bottom: 0;
+        }
+
+        /* Email Display Loading */
+        .email-display.loading .email-address {
+            position: relative;
+            color: transparent;
+        }
+
+        .email-display.loading .email-address::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div>
+                    <h1><i class="fas fa-envelope"></i> TempMail</h1>
+                   
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <label for="mailSource" style="color: white; font-size: 0.9rem; font-weight: 500;">
+                        <i class="fas fa-server"></i> Nguồn:
+                    </label>
+                    <select id="mailSource" class="form-select" style="min-width: 180px; background: white; border: none; padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; cursor: pointer;" onchange="switchMailSource()">
+                        <option value="tmail">TempMail</option>
+                        <!-- <option value="imail">iMail (Mail EDU)</option> --> <!-- Disabled: iMail source removed -->
+                        <option value="tempmail-id">TempMail ID</option>
+                        <option value="noopmail">NoopMail</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Card -->
+        <div class="main-card">
+            <!-- Email Display Section -->
+            <div class="email-section">
+                <div class="email-display">
+                    <i class="fas fa-inbox"></i>
+                    <div class="email-content">
+                        <div class="email-label">Địa chỉ email của bạn</div>
+                        <div class="email-address" id="currentEmail">
+                            <span class="email-empty">Chưa có email</span>
+                        </div>
+                    </div>
+                    <button class="copy-btn" id="copyBtn" onclick="copyEmail()" style="display: none;">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+            </div>
+
+            <!-- Controls Section -->
+            <div class="controls-section">
+                <div class="button-grid">
+                    <button class="btn btn-primary" onclick="openCreateModal()">
+                        <i class="fas fa-plus-circle"></i> Tạo Email Mới
+                    </button>
+                    <button class="btn btn-primary" onclick="createRandomEmailManual()">
+                        <i class="fas fa-dice"></i> Ngẫu Nhiên
+                    </button>
+                    <button class="btn btn-secondary" onclick="refreshMessages()" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i> Làm Mới
+                    </button>
+                    <button class="btn btn-danger" onclick="openDeleteModal()">
+                        <i class="fas fa-trash-alt"></i> Xóa Email
+                    </button>
+                </div>
+            </div>
+
+            <!-- Inbox Section -->
+            <div class="inbox-section">
+                <!-- Inbox Header - Luôn hiển thị -->
+                <div class="inbox-header">
+                    <h2 class="inbox-title"><i class="fas fa-envelope-open-text"></i> Hộp thư đến</h2>
+                    <span class="inbox-count" id="messageCount">0 thư</span>
+                </div>
+
+                <!-- Messages List View -->
+                <div class="messages-list-view" id="messagesListView">
+                    <div class="messages-container" id="messagesList">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>Chưa có thư nào</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Message Detail View -->
+                <div class="message-detail-view" id="messageDetailView">
+                    <button class="back-btn" onclick="closeMessageDetail()">
+                        <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                    </button>
+
+                    <div class="detail-header" id="detailHeader">
+                        <!-- Header will be populated by JS -->
+                    </div>
+
+                    <div class="detail-content" id="detailContent">
+                        <!-- Content will be populated by JS -->
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- IP Info & Time Cards Container - 2 khung nằm cạnh nhau -->
+        <div class="info-cards-container">
+            <!-- IP Info Card - 50% width -->
+            <div class="ip-info-card">
+                <div class="ip-info-header">
+                    <i class="fas fa-globe"></i>
+                    <h3>Thông tin IP của bạn</h3>
+                </div>
+                <div class="ip-info-content" id="ipInfoContent">
+                    <div class="ip-info-loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Đang tải thông tin IP...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Time Card - 50% width -->
+            <div class="time-card">
+                <div class="time-header">
+                    <i class="fas fa-clock"></i>
+                    <h3>Thời gian hiện tại</h3>
+                </div>
+                <div class="time-content">
+                    <div class="time-display" id="timeDisplay">
+                        <div class="time-main">
+                            <span id="timeHours">00</span>
+                            <span class="time-separator">:</span>
+                            <span id="timeMinutes">00</span>
+                            <span class="time-separator">:</span>
+                            <span id="timeSeconds">00</span>
+                        </div>
+                        <div class="time-date">
+                            <span>Ngày : </span>
+                            <span id="timeDate">--/--/----</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Admin Card -->
+        <div class="contact-admin-card">
+            <a href="https://t.me/Bug_Busters12" target="_blank" rel="noopener noreferrer" class="contact-admin-link">
+                <i class="fab fa-telegram"></i>
+                <span>Liên hệ với Admin tại đây</span>
+                <i class="fas fa-external-link-alt"></i>
+            </a>
+        </div>
+
+    <!-- Toast Container -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p id="loadingText">Đang xử lý...</p>
+        </div>
+    </div>
+
+    <!-- Create Email Modal -->
+    <div id="createModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-envelope-open-text"></i> Tạo Email Mới</h3>
+                <button class="modal-close" onclick="closeCreateModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" id="usernameGroup">
+                    <label for="username"><i class="fas fa-user"></i> Tên người dùng</label>
+                    <input type="text" id="username" class="form-input" placeholder="Nhập tên của bạn (3-15 ký tự)..." maxlength="15">
+                    <small style="color: var(--gray); font-size: 0.85rem;">Chỉ chữ cái, số và dấu gạch dưới</small>
+                </div>
+                <div class="form-group">
+                    <label for="domain"><i class="fas fa-globe"></i> Domain</label>
+                    <select id="domain" class="form-select">
+                        <option value="">Đang tải...</option>
+                    </select>
+                    <small id="domainHelp" style="color: var(--gray); font-size: 0.85rem; display: none;">TempMail ID: Để trống username để tạo ngẫu nhiên</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCreateModal()">
+                    <i class="fas fa-times"></i> Hủy
+                </button>
+                <button class="btn btn-primary" onclick="createEmailFromModal()">
+                    <i class="fas fa-check"></i> Tạo Email
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Email Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-trash-alt"></i> Xác nhận xóa email</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; padding: 1rem 0;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ef4444; margin-bottom: 1rem;"></i>
+                    <p style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text);">
+                        Bạn có chắc muốn xóa email này?
+                    </p>
+                    <p id="deleteEmailAddress" style="font-size: 1rem; color: var(--gray); font-weight: 500; word-break: break-all;">
+                        <!-- Email sẽ được hiển thị ở đây -->
+                    </p>
+                    <p style="font-size: 0.9rem; color: var(--gray); margin-top: 1rem;">
+                        Nếu còn email khác, hệ thống sẽ tự động chuyển sang email tiếp theo.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">
+                    <i class="fas fa-times"></i> Hủy
+                </button>
+                <button class="btn btn-danger" onclick="confirmDeleteEmail()">
+                    <i class="fas fa-trash-alt"></i> Xóa Email
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Lưu SESSION_ID vào localStorage để giữ nguyên session khi reload
+        // Nhưng chỉ dùng lại nếu có email trong session (user reload)
+        // Nếu không có email trong session → tạo session mới (user mới hoặc session hết hạn)
+        let SESSION_ID = localStorage.getItem('tempMailSessionId');
+        let isNewSession = false;
+        
+        if (!SESSION_ID) {
+            // User mới: tạo SESSION_ID mới
+            SESSION_ID = 'web-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('tempMailSessionId', SESSION_ID);
+            isNewSession = true;
+        }
+        let currentEmail = null;
+        let autoRefreshInterval = null;
+        let iMailPollingInterval = null; // Polling interval cho TempMail ID (tên biến giữ nguyên để tương thích)
+        let currentMessageCount = 0;
+        let currentMessages = [];
+        let viewingMessageIndex = null;
+        let displayedMessageIds = new Set(); // Track message IDs đã hiển thị
+
+        // API base URL
+        const API_BASE_URL = (() => {
+            const hostname = window.location.hostname;
+            const port = window.location.port;
+            
+            // Nếu đang chạy trên production (Render, Railway, etc.)
+            if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+                return ''; // Dùng relative URL (same origin)
+            }
+            
+            // Local development
+            if (port && port !== '3000') {
+                    return 'http://localhost:3000';
+                }
+            
+            // File protocol hoặc localhost:3000
+            if (window.location.protocol === 'file:') {
+                return 'http://localhost:3000';
+            }
+            
+            return ''; // localhost:3000 - dùng relative URL
+        })();
+
+        // API Call
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            const url = API_BASE_URL ? `${API_BASE_URL}${endpoint}` : endpoint;
+            
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Session-ID': SESSION_ID
+                }
+            };
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+
+        // Show Loading Overlay
+        function showLoading(text = 'Đang xử lý...') {
+            const overlay = document.getElementById('loadingOverlay');
+            const loadingText = document.getElementById('loadingText');
+            loadingText.textContent = text;
+            overlay.classList.add('show');
+        }
+
+        // Hide Loading Overlay
+        function hideLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.classList.remove('show');
+        }
+
+        // Show Button Loading
+        function setButtonLoading(button, loading = true) {
+            if (loading) {
+                button.classList.add('loading');
+                button.disabled = true;
+            } else {
+                button.classList.remove('loading');
+                button.disabled = false;
+            }
+        }
+
+        // Show Skeleton Loading for Messages
+        function showSkeletonMessages(count = 3) {
+            const container = document.getElementById('messagesList');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < count; i++) {
+                const skeleton = document.createElement('div');
+                skeleton.className = 'skeleton-message';
+                skeleton.innerHTML = `
+                    <div class="skeleton skeleton-line"></div>
+                    <div class="skeleton skeleton-line"></div>
+                    <div class="skeleton skeleton-line"></div>
+                    <div class="skeleton skeleton-line"></div>
+                `;
+                container.appendChild(skeleton);
+            }
+        }
+
+        // Show Toast (chỉ dùng cho success/error, không dùng cho loading)
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                info: 'fa-info-circle'
+            };
+
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas ${icons[type]}"></i>
+                <div class="toast-content">
+                    <div class="toast-message">${message}</div>
+                </div>
+            `;
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Initialize
+        async function init() {
+            showLoading('Đang khởi tạo...');
+            
+            try {
+                // Lấy nguồn mail từ localStorage hoặc default
+                const savedSource = localStorage.getItem('mailSource') || 'tmail';
+                document.getElementById('mailSource').value = savedSource;
+                
+                await apiCall('/api/init', 'POST', { sourceId: savedSource });
+                await loadDomains();
+                
+                // CHỈ DÙNG LOCALSTORAGE: Check localStorage trước
+                const lastEmail = localStorage.getItem('tempMailLastEmail');
+                
+                if (lastEmail) {
+                    // Có email trong localStorage → User reload, load lại từ session
+                    currentEmail = lastEmail;
+                    updateEmailDisplay(lastEmail);
+                    showSkeletonMessages(3);
+                    
+                    try {
+                        // Gọi API để sync email từ session (nếu session còn tồn tại)
+                        const savedSource = localStorage.getItem('mailSource') || 'tmail';
+                        if (savedSource === 'tmail' || savedSource === 'tempmail-id' || savedSource === 'noopmail') {
+                            // TMail, TempMail ID và NoopMail: Gọi syncEmail trước
+                            // TempMail ID sẽ lấy emailId từ danh sách emails
+                            await apiCall('/api/email/sync', 'POST', { email: lastEmail });
+                        }
+                        // Sau đó fetch messages
+                        await refreshMessages();
+                    } catch (error) {
+                        console.error('Lỗi khi sync/fetch messages:', error);
+                        // Nếu session không còn (lỗi 500/419) → Xóa email cũ và tự động tạo email mới
+                        localStorage.removeItem('tempMailLastEmail');
+                        localStorage.removeItem('tempMailLastEmailTime');
+                        currentEmail = null;
+                        updateEmailDisplay(null);
+                        displayedMessageIds.clear();
+                        displayMessages([], true);
+                        
+                        // Tự động tạo email mới khi session hết hạn
+                        try {
+                            console.log('🔄 Session hết hạn, tự động tạo email mới...');
+                            const result = await apiCall('/api/email/random', 'POST');
+                            if (result.success) {
+                                currentEmail = result.email;
+                                // Lưu email mới vào localStorage
+                                localStorage.setItem('tempMailLastEmail', result.email);
+                                localStorage.setItem('tempMailLastEmailTime', Date.now().toString());
+                                
+                                updateEmailDisplay(result.email);
+                                displayedMessageIds.clear();
+                                showSkeletonMessages(3);
+                                await refreshMessages();
+                                
+                                // Bắt đầu polling cho TempMail ID (nếu đang dùng)
+                                await startPollingIfIMail();
+                                
+                                showToast('✓ Đã tạo email mới!', 'success');
+                            } else {
+                                showToast('Không thể tạo email mới: ' + (result.error || 'Lỗi không xác định'), 'error');
+                            }
+                        } catch (createError) {
+                            console.error('Lỗi khi tạo email mới:', createError);
+                            showToast('Lỗi: ' + createError.message, 'error');
+                        }
+                    }
+                    
+                    hideLoading();
+                    if (currentEmail) {
+                        showToast('Chào mừng bạn trở lại!', 'success');
+                    }
+                } else {
+                    // Không có email trong localStorage → User mới
+                    // Tự động tạo email mới bằng API random
+                    currentEmail = null;
+                    updateEmailDisplay(null);
+                    displayedMessageIds.clear();
+                    displayMessages([], true);
+                    
+                    // Tự động tạo email ngẫu nhiên cho user mới
+                    try {
+                        const result = await apiCall('/api/email/random', 'POST');
+                        if (result.success) {
+                            currentEmail = result.email;
+                            // Lưu email vào localStorage
+                            localStorage.setItem('tempMailLastEmail', result.email);
+                            localStorage.setItem('tempMailLastEmailTime', Date.now().toString());
+                            
+                            updateEmailDisplay(result.email);
+                            displayedMessageIds.clear();
+                            showSkeletonMessages(3);
+                            await refreshMessages();
+                            
+                            // Bắt đầu polling cho iMail và TempMail ID (nếu đang dùng)
+                            await startPollingIfIMail();
+                            
+                            showToast('✓ Email của bạn đã sẵn sàng!', 'success');
+                        } else {
+                            showToast(result.error || 'Không thể tạo email', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Lỗi khi tạo email mới:', error);
+                        showToast('Lỗi: ' + error.message, 'error');
+                    }
+                    
+                    hideLoading();
+                }
+                
+                startAutoRefresh();
+            } catch (error) {
+                hideLoading();
+                showToast('Lỗi khởi tạo: ' + error.message, 'error');
+            }
+        }
+
+        // Switch Mail Source
+        async function switchMailSource() {
+            const sourceSelect = document.getElementById('mailSource');
+            const newSourceId = sourceSelect.value;
+            
+            if (!newSourceId) return;
+            
+            // Dừng polling cũ trước khi chuyển
+            stopPollingIfIMail();
+            
+            showLoading('Đang chuyển nguồn mail...');
+            
+            try {
+                const result = await apiCall('/api/source/switch', 'POST', { sourceId: newSourceId });
+                
+                if (result.success) {
+                    // Lưu vào localStorage
+                    localStorage.setItem('mailSource', newSourceId);
+                    
+                    // Reload domains
+                    await loadDomains();
+                    
+                    // QUAN TRỌNG: Xóa email cũ trong localStorage khi chuyển nguồn
+                    // Vì email từ nguồn cũ không thể dùng cho nguồn mới
+                    localStorage.removeItem('tempMailLastEmail');
+                    localStorage.removeItem('tempMailLastEmailTime');
+                    
+                    // Reset email và messages
+                    currentEmail = null;
+                    updateEmailDisplay(null);
+                    displayedMessageIds.clear();
+                    displayMessages([], true);
+                    
+                    hideLoading();
+                    showToast(`Đã chuyển sang: ${result.source.name}`, 'success');
+                    
+                    // Tự động tạo email mới cho nguồn mới
+                    showLoading('Đang tạo email mới...');
+                    try {
+                        const emailResult = await apiCall('/api/email/random', 'POST');
+                        if (emailResult.success) {
+                            currentEmail = emailResult.email;
+                            // Lưu email mới vào localStorage
+                            localStorage.setItem('tempMailLastEmail', emailResult.email);
+                            localStorage.setItem('tempMailLastEmailTime', Date.now().toString());
+                            
+                            updateEmailDisplay(emailResult.email);
+                            displayedMessageIds.clear();
+                            showSkeletonMessages(3);
+                            await refreshMessages();
+                            
+                            // Bắt đầu polling cho iMail và TempMail ID (nếu đang dùng)
+                            await startPollingIfIMail();
+                            
+                            showToast('✓ Email mới đã được tạo!', 'success');
+                        } else {
+                            showToast(emailResult.error || 'Không thể tạo email', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Lỗi khi tạo email mới:', error);
+                        showToast('Lỗi: ' + error.message, 'error');
+                    }
+                    hideLoading();
+                } else {
+                    hideLoading();
+                    showToast(result.error || 'Lỗi chuyển nguồn mail', 'error');
+                    // Revert select
+                    sourceSelect.value = localStorage.getItem('mailSource') || 'tmail';
+                }
+            } catch (error) {
+                hideLoading();
+                showToast('Lỗi: ' + error.message, 'error');
+                // Revert select
+                sourceSelect.value = localStorage.getItem('mailSource') || 'tmail';
+            }
+        }
+
+        // Load Domains
+        async function loadDomains() {
+            const result = await apiCall('/api/domains');
+            const select = document.getElementById('domain');
+            
+            if (result.success) {
+                if (result.domains && result.domains.length > 0) {
+                    select.innerHTML = result.domains.map(d => 
+                        `<option value="${d}">${d}</option>`
+                    ).join('');
+                } else {
+                    select.innerHTML = '<option value="">Không có domain</option>';
+                }
+                
+                // Cập nhật thông tin nguồn hiện tại
+                if (result.source) {
+                    console.log('Current source:', result.source.name, '- Domains:', result.domains.length);
+                }
+            }
+        }
+
+        // Load Current Email
+        async function loadCurrentEmail() {
+            const result = await apiCall('/api/email/current');
+            
+            if (result.success && result.email) {
+                currentEmail = result.email;
+                updateEmailDisplay(result.email);
+                await refreshMessages();
+            }
+        }
+
+        // Update Email Display
+        function updateEmailDisplay(email) {
+            const display = document.getElementById('currentEmail');
+            const copyBtn = document.getElementById('copyBtn');
+            
+            if (email) {
+                display.innerHTML = email;
+                display.classList.remove('email-empty');
+                copyBtn.style.display = 'flex';
+            } else {
+                display.innerHTML = '<span class="email-empty">Chưa có email</span>';
+                display.classList.add('email-empty');
+                copyBtn.style.display = 'none';
+            }
+        }
+
+        // Open Create Modal
+        async function openCreateModal() {
+            const savedSource = localStorage.getItem('mailSource') || 'tmail';
+            const usernameGroup = document.getElementById('usernameGroup');
+            const domainHelp = document.getElementById('domainHelp');
+            
+            // TempMail ID: Username là optional (có thể để trống để random)
+            if (savedSource === 'tempmail-id') {
+                if (usernameGroup) usernameGroup.style.display = 'block'; // Vẫn hiển thị nhưng optional
+                if (domainHelp) domainHelp.style.display = 'block';
+            } else {
+                if (usernameGroup) usernameGroup.style.display = 'block';
+                if (domainHelp) domainHelp.style.display = 'none';
+            }
+            
+            // Reload domains trước khi mở modal để đảm bảo có danh sách mới nhất
+            await loadDomains();
+            
+            document.getElementById('createModal').classList.add('show');
+            
+            // Focus vào username (TempMail ID vẫn có thể nhập username)
+            document.getElementById('username').focus();
+        }
+
+        // Close Create Modal
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.remove('show');
+            document.getElementById('username').value = '';
+        }
+
+        // Create Email from Modal
+        async function createEmailFromModal() {
+            const savedSource = localStorage.getItem('mailSource') || 'tmail';
+            const username = document.getElementById('username').value.trim();
+            const domain = document.getElementById('domain').value;
+
+            // TempMail ID: Username là optional (có thể để trống để random)
+            if (savedSource !== 'tempmail-id') {
+                if (!username) {
+                    showToast('Vui lòng nhập tên người dùng!', 'error');
+                    return;
+                }
+
+                if (username.length < 3) {
+                    showToast('Tên phải có ít nhất 3 ký tự!', 'error');
+                    return;
+                }
+
+                if (username.length > 15) {
+                    showToast('Tên không được vượt quá 15 ký tự!', 'error');
+                    return;
+                }
+            }
+
+            closeCreateModal();
+            showLoading('Đang tạo email...');
+            
+            try {
+                const result = await apiCall('/api/email/create', 'POST', { username, domain });
+                
+                if (result.success) {
+                    currentEmail = result.email;
+                    // Lưu email vào localStorage khi tạo email mới
+                    localStorage.setItem('tempMailLastEmail', result.email);
+                    localStorage.setItem('tempMailLastEmailTime', Date.now().toString());
+                    
+                    updateEmailDisplay(result.email);
+                    document.getElementById('username').value = '';
+                    // Force render khi tạo email mới
+                    displayedMessageIds.clear();
+                    showSkeletonMessages(3);
+                    await refreshMessages();
+                    hideLoading();
+                    showToast('✓ Email mới đã được tạo!', 'success');
+                    
+                    // Bắt đầu polling cho TempMail ID (nếu đang dùng)
+                    await startPollingIfIMail();
+                } else {
+                    hideLoading();
+                    showToast(result.error, 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showToast('Lỗi: ' + error.message, 'error');
+            }
+        }
+
+        // Create Random Email (internal use - khi init)
+        async function createRandomEmail() {
+            try {
+                const result = await apiCall('/api/email/random', 'POST');
+                
+                if (result.success) {
+                    currentEmail = result.email;
+                    // Lưu email vào localStorage khi tạo email ngẫu nhiên
+                    localStorage.setItem('tempMailLastEmail', result.email);
+                    localStorage.setItem('tempMailLastEmailTime', Date.now().toString());
+                    
+                    updateEmailDisplay(result.email);
+                    // Force render khi tạo email mới
+                    displayedMessageIds.clear();
+                    showSkeletonMessages(3);
+                    await refreshMessages();
+                    showToast('✓ Email của bạn đã sẵn sàng!', 'success');
+                    
+                    // Bắt đầu polling cho TempMail ID (nếu đang dùng)
+                    await startPollingIfIMail();
+                } else {
+                    showToast(result.error, 'error');
+                }
+            } catch (error) {
+                showToast('Lỗi: ' + error.message, 'error');
+            }
+        }
+
+        // Create Random Email Manual (khi user click button)
+        async function createRandomEmailManual() {
+            // Chỉ hiển thị lazy loading, không làm button quay
+            showLoading('Đang tạo email ngẫu nhiên...');
+            
+            try {
+                const result = await apiCall('/api/email/random', 'POST');
+                
+                if (result.success) {
+                    currentEmail = result.email;
+                    // Lưu email vào localStorage khi tạo email ngẫu nhiên
+                    localStorage.setItem('tempMailLastEmail', result.email);
+                    localStorage.setItem('tempMailLastEmailTime', Date.now().toString());
+                    
+                    updateEmailDisplay(result.email);
+                    // Force render khi tạo email ngẫu nhiên
+                    displayedMessageIds.clear();
+                    showSkeletonMessages(3);
+                    await refreshMessages();
+                    hideLoading();
+                    showToast('✓ Email mới đã được tạo!', 'success');
+                    
+                    // Bắt đầu polling cho TempMail ID (nếu đang dùng)
+                    await startPollingIfIMail();
+                } else {
+                    hideLoading();
+                    showToast(result.error, 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showToast('Lỗi: ' + error.message, 'error');
+            }
+        }
+
+        // Refresh Messages
+        async function refreshMessages(silent = false) {
+            if (!currentEmail) {
+                document.getElementById('messageCount').textContent = '0 thư';
+                return;
+            }
+
+            // TỐI ƯU: Chỉ show skeleton loading, không làm button quay
+            // Chỉ show skeleton nếu không phải silent refresh
+            if (!silent && viewingMessageIndex === null) {
+                showSkeletonMessages(3);
+            }
+
+            try {
+                const result = await apiCall('/api/messages');
+                
+                if (result.success) {
+                    const newCount = result.count || 0;
+                    const oldCount = currentMessageCount;
+                    
+                    currentMessages = result.messages || [];
+                    
+                    // Chỉ update UI nếu không đang xem chi tiết thư
+                    if (viewingMessageIndex === null) {
+                        // Force render lần đầu (oldCount = 0), sau đó chỉ append thư mới
+                        const forceRender = (oldCount === 0);
+                        displayMessages(currentMessages, forceRender);
+                        document.getElementById('messageCount').textContent = `${newCount} thư`;
+                        
+                        // Thông báo nếu có thư mới (khi auto-refresh)
+                        if (silent && newCount > oldCount && oldCount > 0) {
+                            showToast(`📬 Bạn có ${newCount - oldCount} thư mới!`, 'info');
+                        }
+                    } else {
+                        // Đang xem tin nhắn, chỉ update count và thông báo
+                        currentMessageCount = newCount;
+                        document.getElementById('messageCount').textContent = `${newCount} thư`;
+                        
+                        if (newCount > oldCount) {
+                            showToast(`📬 Có ${newCount - oldCount} thư mới!`, 'info');
+                        }
+                    }
+                } else {
+                    if (!silent) showToast(result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Lỗi tải thư:', error);
+                if (!silent) showToast('Lỗi tải thư', 'error');
+            } finally {
+                // TỐI ƯU: Luôn xóa skeleton khi hoàn thành (kể cả khi lỗi)
+                const container = document.getElementById('messagesList');
+                if (container) {
+                    const skeletonMessages = container.querySelectorAll('.skeleton-message');
+                    skeletonMessages.forEach(skeleton => skeleton.remove());
+                }
+            }
+        }
+
+        // Display Messages (chỉ thêm thư mới, không re-render)
+        function displayMessages(messages, forceRender = false) {
+            const container = document.getElementById('messagesList');
+            
+            // TỐI ƯU: Luôn xóa skeleton messages trước khi render
+            const skeletonMessages = container.querySelectorAll('.skeleton-message');
+            skeletonMessages.forEach(skeleton => skeleton.remove());
+            
+            if (!messages || messages.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>Chưa có thư nào</p>
+                    </div>
+                `;
+                currentMessageCount = 0;
+                displayedMessageIds.clear();
+                return;
+            }
+
+            // Nếu force render (lần đầu, hoặc sau khi xóa email), render toàn bộ
+            if (forceRender || displayedMessageIds.size === 0) {
+                container.innerHTML = '';
+                displayedMessageIds.clear();
+                
+                messages.forEach((msg, index) => {
+                    appendMessage(msg, index, container);
+                    displayedMessageIds.add(msg.id);
+                });
+            } else {
+                // Chỉ thêm thư mới
+                const newMessages = messages.filter(msg => !displayedMessageIds.has(msg.id));
+                
+                if (newMessages.length > 0) {
+                    // Remove empty state nếu có
+                    const emptyState = container.querySelector('.empty-state');
+                    if (emptyState) emptyState.remove();
+                    
+                    // Thêm thư mới vào đầu danh sách
+                    newMessages.reverse().forEach((msg, i) => {
+                        const index = messages.findIndex(m => m.id === msg.id);
+                        const messageHTML = createMessageCard(msg, index);
+                        container.insertAdjacentHTML('afterbegin', messageHTML);
+                        displayedMessageIds.add(msg.id);
+                        
+                        // Animation cho thư mới
+                        setTimeout(() => {
+                            const newCard = container.querySelector(`[data-id="${msg.id}"]`);
+                            if (newCard) newCard.style.animation = 'fadeIn 0.5s ease-out';
+                        }, i * 50);
+                    });
+                }
+            }
+
+            currentMessageCount = messages.length;
+        }
+
+        // Create Message Card HTML
+        function createMessageCard(msg, index) {
+            const textContent = msg.content ? 
+                msg.content
+                    .replace(/<[^>]*>/g, '')
+                    .replace(/&nbsp;/g, ' ')
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#039;/g, "'")
+                    .replace(/&amp;/g, '&')
+                    .trim() : '';
+            
+            const preview = textContent.length > 120 
+                ? textContent.substring(0, 120) + '...' 
+                : textContent;
+            
+            const senderDisplay = msg.sender_name || 'Không rõ';
+            const senderEmail = msg.sender_email || '';
+            const timeDisplay = msg.datediff || msg.date || 'N/A';
+            const attachmentsDisplay = msg.attachments && msg.attachments.length > 0 
+                ? `<div class="message-attachments"><i class="fas fa-paperclip"></i> ${msg.attachments.length} file đính kèm</div>` : '';
+            
+            return `
+                <div class="message-card" onclick="viewMessageDetail(${index})" data-index="${index}" data-id="${msg.id}">
+                    <div class="message-header">
+                        <div class="message-info">
+                            <div class="message-sender">
+                                <i class="fas fa-user-circle"></i>
+                                ${senderDisplay}
+                            </div>
+                            ${senderEmail ? `<div class="message-email">${senderEmail}</div>` : ''}
+                            <div class="message-subject">${msg.subject || 'Không có tiêu đề'}</div>
+                        </div>
+                        <div class="message-time">
+                            <i class="fas fa-clock"></i> ${timeDisplay}
+                        </div>
+                    </div>
+                    ${preview ? `<div class="message-preview">${preview}</div>` : ''}
+                    ${attachmentsDisplay}
+                </div>
+            `;
+        }
+
+        // Append single message (helper)
+        function appendMessage(msg, index, container) {
+            const messageHTML = createMessageCard(msg, index);
+            container.insertAdjacentHTML('beforeend', messageHTML);
+        }
+
+        // View Message Detail
+        async function viewMessageDetail(index) {
+            if (!currentMessages[index]) return;
+            
+            const msg = currentMessages[index];
+            viewingMessageIndex = index;
+            
+            // Populate detail header
+            const detailHeader = document.getElementById('detailHeader');
+            detailHeader.innerHTML = `
+                <div class="detail-subject">${msg.subject || 'Không có tiêu đề'}</div>
+                <div class="detail-meta">
+                    <div class="detail-meta-item">
+                        <i class="fas fa-user"></i>
+                        <strong>${msg.sender_name || 'Không rõ'}</strong>
+                    </div>
+                    ${msg.sender_email ? `
+                    <div class="detail-meta-item">
+                        <i class="fas fa-envelope"></i>
+                        ${msg.sender_email}
+                    </div>
+                    ` : ''}
+                    <div class="detail-meta-item">
+                        <i class="fas fa-clock"></i>
+                        ${msg.datediff || msg.date || 'N/A'}
+                    </div>
+                    ${msg.attachments && msg.attachments.length > 0 ? `
+                    <div class="detail-meta-item">
+                        <i class="fas fa-paperclip"></i>
+                        ${msg.attachments.length} file đính kèm
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            // Populate detail content - hiển thị loading trước
+            const detailContent = document.getElementById('detailContent');
+            detailContent.innerHTML = '<p style="color: var(--gray); text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin"></i> Đang tải nội dung...</p>';
+            
+            // Switch views
+            document.getElementById('messagesListView').classList.add('hide');
+            document.getElementById('messageDetailView').classList.add('show');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Nếu là TempMail ID hoặc NoopMail và có messageId, gọi API để lấy body đầy đủ
+            const savedSource = localStorage.getItem('mailSource') || 'tmail';
+            if ((savedSource === 'tempmail-id' || savedSource === 'noopmail') && msg.id) {
+                try {
+                    const result = await apiCall(`/api/message/${msg.id}`, 'GET');
+                    if (result.success && result.message) {
+                        // Cập nhật content từ API response
+                        // TempMail ID và NoopMail trả về HTML content, cần hiển thị trực tiếp
+                        let content = result.message.content || result.message.content_raw || '';
+                        
+                        // Ưu tiên HTML content nếu có (cho cả tempmail-id và noopmail)
+                        if (result.message.html) {
+                            content = result.message.html;
+                        } else if (result.message.content && result.message.content.trim().startsWith('<')) {
+                            // Nếu content là HTML (bắt đầu bằng <), dùng trực tiếp
+                            content = result.message.content;
+                        }
+                        
+                        detailContent.innerHTML = content || '<p style="color: var(--gray); text-align: center; padding: 40px;">Không có nội dung</p>';
+                        
+                        // Cập nhật currentMessages để lần sau không cần gọi lại
+                        currentMessages[index].content = result.message.content || result.message.content_raw || '';
+                        currentMessages[index].content_raw = result.message.content_raw || result.message.content || '';
+                        if (result.message.html) {
+                            currentMessages[index].html = result.message.html;
+                        }
+                    } else {
+                        // Nếu API lỗi, dùng content hiện có
+                        detailContent.innerHTML = msg.content || msg.content_raw || '<p style="color: var(--gray); text-align: center; padding: 40px;">Không có nội dung</p>';
+                        if (result.error) {
+                            console.warn('Không thể lấy nội dung đầy đủ:', result.error);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Lỗi lấy nội dung message:', error);
+                    // Nếu lỗi, dùng content hiện có
+                    detailContent.innerHTML = msg.content || msg.content_raw || '<p style="color: var(--gray); text-align: center; padding: 40px;">Không có nội dung</p>';
+                }
+            } else {
+                // Các nguồn khác dùng content từ danh sách
+                detailContent.innerHTML = msg.content || msg.content_raw || '<p style="color: var(--gray); text-align: center; padding: 40px;">Không có nội dung</p>';
+            }
+        }
+
+        // Close Message Detail
+        function closeMessageDetail() {
+            viewingMessageIndex = null;
+            
+            // Switch views
+            document.getElementById('messageDetailView').classList.remove('show');
+            document.getElementById('messagesListView').classList.remove('hide');
+            
+            // TỐI ƯU: Dùng silent refresh để kiểm tra thư mới nhưng không show skeleton
+            // Vì messages đã có sẵn, chỉ cần update nếu có thư mới
+            refreshMessages(true); // silent = true → không show skeleton
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Open Delete Confirmation Modal
+        function openDeleteModal() {
+            if (!currentEmail) {
+                showToast('Chưa có email nào để xóa!', 'error');
+                return;
+            }
+            
+            // Hiển thị email trong modal
+            document.getElementById('deleteEmailAddress').textContent = currentEmail;
+            document.getElementById('deleteModal').classList.add('show');
+        }
+        
+        // Close Delete Modal
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('show');
+        }
+        
+        // Confirm Delete Email (sau khi user click "Xóa Email" trong modal)
+        async function confirmDeleteEmail() {
+            closeDeleteModal();
+            
+            if (!currentEmail) {
+                showToast('Chưa có email nào để xóa!', 'error');
+                return;
+            }
+
+            showLoading('Đang xóa email...');
+            
+            try {
+                const result = await apiCall('/api/email', 'DELETE');
+                
+                if (result.success) {
+                    // Nếu có email mới sau khi xóa, tự động chuyển sang email đó
+                    if (result.newEmail) {
+                        currentEmail = result.newEmail;
+                        // Cập nhật email trong localStorage
+                        localStorage.setItem('tempMailLastEmail', result.newEmail);
+                        localStorage.setItem('tempMailLastEmailTime', Date.now().toString());
+                        
+                        updateEmailDisplay(result.newEmail);
+                        
+                        // Refresh messages cho email mới
+                        displayedMessageIds.clear();
+                        showSkeletonMessages(3);
+                        await refreshMessages(false);
+                        hideLoading();
+                        showToast(`✓ Email đã được xóa! Đã chuyển sang: ${result.newEmail}`, 'success');
+                    } else {
+                        // Không còn email nào
+                        currentEmail = null;
+                        // Xóa email khỏi localStorage khi xóa email
+                        localStorage.removeItem('tempMailLastEmail');
+                        localStorage.removeItem('tempMailLastEmailTime');
+                        
+                        updateEmailDisplay(null);
+                        displayedMessageIds.clear();
+                        displayMessages([], true);
+                        hideLoading();
+                        showToast('✓ Email đã được xóa!', 'success');
+                    }
+                } else {
+                    hideLoading();
+                    showToast(result.error, 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showToast('Lỗi: ' + error.message, 'error');
+            }
+        }
+
+        // Copy Email
+        function copyEmail() {
+            if (!currentEmail) {
+                showToast('Chưa có email để copy!', 'error');
+                return;
+            }
+
+            navigator.clipboard.writeText(currentEmail);
+            showToast('✓ Đã copy email!', 'success');
+        }
+
+        // Start Polling for TempMail ID (frontend polling - gọi API liên tục mỗi 5s)
+        // Tên hàm giữ nguyên để tương thích với code cũ
+        function startPollingIfIMail() {
+            const savedSource = localStorage.getItem('mailSource') || 'tmail';
+            // TempMail ID và NoopMail cần polling mỗi 5 giây
+            if (savedSource !== 'tempmail-id' && savedSource !== 'noopmail') {
+                return;
+            }
+            
+            // Dừng polling cũ nếu có
+            if (iMailPollingInterval) {
+                clearInterval(iMailPollingInterval);
+            }
+            
+            const sourceName = savedSource === 'noopmail' ? 'NoopMail' : 'TempMail ID';
+            console.log(`🔄 Bắt đầu polling cho ${sourceName} (interval: 5s)`);
+            
+            // Gọi ngay lần đầu
+            refreshMessages(true);
+            
+            // Sau đó gọi định kỳ mỗi 5 giây
+            iMailPollingInterval = setInterval(() => {
+                if (currentEmail) {
+                    // Silent refresh - không hiển thị skeleton loading
+                    refreshMessages(true);
+                }
+            }, 5000);
+        }
+        
+        // Stop Polling for TempMail ID
+        // Tên hàm giữ nguyên để tương thích với code cũ
+        function stopPollingIfIMail() {
+            if (iMailPollingInterval) {
+                clearInterval(iMailPollingInterval);
+                iMailPollingInterval = null;
+                console.log('⏹️ Đã dừng polling');
+            }
+        }
+
+        // Auto Refresh - Tất cả 3 nguồn đều check messages mỗi 5 giây
+        function startAutoRefresh() {
+            const savedSource = localStorage.getItem('mailSource') || 'tmail';
+            
+            // TempMail ID và NoopMail dùng polling riêng (5s)
+            if (savedSource === 'tempmail-id' || savedSource === 'noopmail') {
+                startPollingIfIMail();
+                return;
+            }
+            
+            // TMail cũng dùng polling mỗi 5 giây (thay vì 10 giây)
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            
+            console.log(`🔄 Bắt đầu polling cho TMail (interval: 5s)`);
+            
+            // Gọi ngay lần đầu
+            if (currentEmail) {
+                refreshMessages(true);
+            }
+            
+            // Sau đó gọi định kỳ mỗi 5 giây
+            autoRefreshInterval = setInterval(() => {
+                if (currentEmail) {
+                    // Silent refresh - không hiển thị toast loading
+                    refreshMessages(true);
+                }
+            }, 5000);
+        }
+
+        // Load IP Info - Gọi trực tiếp API ipwho.is
+        async function loadIPInfo() {
+            try {
+                const response = await fetch('https://ipwho.is/');
+                const ipData = await response.json();
+                
+                if (ipData.success && ipData.ip) {
+                    const ipInfoContent = document.getElementById('ipInfoContent');
+                    
+                    let html = '';
+                    
+                    // IP Address (Full)
+                    if (ipData.ip) {
+                        html += `<div class="ip-info-item">
+                            <i class="fas fa-network-wired"></i>
+                            <strong>IP:</strong>
+                            <span>${ipData.ip}</span>
+                        </div>`;
+                    }
+                    
+                    // City
+                    if (ipData.city) {
+                        html += `<div class="ip-info-item">
+                            <i class="fas fa-city"></i>
+                            <strong>City:</strong>
+                            <span>${ipData.city}</span>
+                        </div>`;
+                    }
+                    
+                    // Region
+                    if (ipData.region) {
+                        html += `<div class="ip-info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <strong>Region:</strong>
+                            <span>${ipData.region}</span>
+                        </div>`;
+                    }
+                    
+                    // Country
+                    if (ipData.country) {
+                        html += `<div class="ip-info-item">
+                            <i class="fas fa-flag"></i>
+                            <strong>Country:</strong>
+                            <span>${ipData.country}</span>
+                        </div>`;
+                    }
+                    
+                    // ASN & Org
+                    if (ipData.connection) {
+                        const asnOrg = [];
+                        if (ipData.connection.asn) {
+                            asnOrg.push(`ASN: ${ipData.connection.asn}`);
+                        }
+                        if (ipData.connection.org) {
+                            asnOrg.push(ipData.connection.org);
+                        }
+                        if (asnOrg.length > 0) {
+                            html += `<div class="ip-info-item">
+                                <i class="fas fa-building"></i>
+                                <strong>ASN & Org:</strong>
+                                <span>${asnOrg.join(' - ')}</span>
+                            </div>`;
+                        }
+                    }
+                    
+                    // ISP
+                    if (ipData.connection && ipData.connection.isp) {
+                        html += `<div class="ip-info-item">
+                            <i class="fas fa-wifi"></i>
+                            <strong>ISP:</strong>
+                            <span>${ipData.connection.isp}</span>
+                        </div>`;
+                    }
+                    
+                    // Domain
+                    if (ipData.connection && ipData.connection.domain) {
+                        html += `<div class="ip-info-item">
+                            <i class="fas fa-globe"></i>
+                            <strong>Domain:</strong>
+                            <span>${ipData.connection.domain}</span>
+                        </div>`;
+                    }
+                    
+                    // Postal code
+                    if (ipData.postal) {
+                        html += `<div class="ip-info-item">
+                            <i class="fas fa-mail-bulk"></i>
+                            <strong>Postal code:</strong>
+                            <span>${ipData.postal}</span>
+                        </div>`;
+                    }
+                    
+                    // Continent
+                    if (ipData.continent) {
+                        html += `<div class="ip-info-item">
+                            <i class="fas fa-globe-americas"></i>
+                            <strong>Continent:</strong>
+                            <span>${ipData.continent}</span>
+                        </div>`;
+                    }
+                    
+                    if (html) {
+                        ipInfoContent.innerHTML = html;
+                    } else {
+                        ipInfoContent.innerHTML = '<div class="ip-info-loading"><span>Không thể tải thông tin IP</span></div>';
+                    }
+                } else {
+                    document.getElementById('ipInfoContent').innerHTML = '<div class="ip-info-loading"><span>Không thể tải thông tin IP</span></div>';
+                }
+            } catch (error) {
+                console.error('Lỗi khi tải IP info:', error);
+                document.getElementById('ipInfoContent').innerHTML = '<div class="ip-info-loading"><span>Lỗi khi tải thông tin IP</span></div>';
+            }
+        }
+
+        // Time Display Functions
+        function updateClockCompactInline() {
+            // Sử dụng timezone mặc định UTC+7 (Vietnam)
+            const offset = 7;
+            const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const targetTime = new Date(utc + (3600000 * offset));
+
+            let hours = targetTime.getHours();
+            let minutes = targetTime.getMinutes();
+            let seconds = targetTime.getSeconds();
+
+            // Format với số 0 đứng trước
+            hours = hours < 10 ? '0' + hours : hours;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+
+            // Update time display
+            const timeHoursEl = document.getElementById('timeHours');
+            const timeMinutesEl = document.getElementById('timeMinutes');
+            const timeSecondsEl = document.getElementById('timeSeconds');
+            const timeDateEl = document.getElementById('timeDate');
+
+            if (timeHoursEl) timeHoursEl.textContent = hours;
+            if (timeMinutesEl) timeMinutesEl.textContent = minutes;
+            if (timeSecondsEl) timeSecondsEl.textContent = seconds;
+
+            // Format date
+            const day = targetTime.getDate();
+            const month = targetTime.getMonth() + 1;
+            const year = targetTime.getFullYear();
+
+            if (timeDateEl) {
+                timeDateEl.textContent = `${day < 10 ? '0' + day : day}/${month < 10 ? '0' + month : month}/${year}`;
+            }
+        }
+
+        // Update clock mỗi giây
+        function startClock() {
+            updateClockCompactInline();
+            setInterval(updateClockCompactInline, 1000);
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            init();
+            loadIPInfo(); // Load IP info khi trang load
+            startClock(); // Bắt đầu clock
+        });
+
+        // Enter key support in modal
+        document.addEventListener('keypress', (e) => {
+            const modal = document.getElementById('createModal');
+            if (modal.classList.contains('show') && e.key === 'Enter') {
+                createEmailFromModal();
+            }
+        });
+
+        // Close modal on ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeCreateModal();
+                closeDeleteModal();
+            }
+        });
+
+        // Close modal on backdrop click
+        document.getElementById('createModal').addEventListener('click', (e) => {
+            if (e.target.id === 'createModal') {
+                closeCreateModal();
+            }
+        });
+        
+        document.getElementById('deleteModal').addEventListener('click', (e) => {
+            if (e.target.id === 'deleteModal') {
+                closeDeleteModal();
+            }
+        });
+    </script>
+</body>
+</html>
