@@ -1,0 +1,264 @@
+Request URL
+https://edumailfree.com/mailbox
+Request Method
+GET
+Status Code
+200 OK
+Remote Address
+[2606:4700:3033::ac43:95f6]:443
+Referrer Policy
+strict-origin-when-cross-origin
+alt-svc
+h3=":443"; ma=86400
+cache-control
+max-age=0, must-revalidate, no-cache, no-store, private
+cf-cache-status
+DYNAMIC
+cf-ray
+9c675e73ff30cf50-SIN
+content-encoding
+zstd
+content-type
+text/html; charset=UTF-8
+date
+Sat, 31 Jan 2026 07:06:53 GMT
+expires
+Fri, 01 Jan 1990 00:00:00 GMT
+nel
+{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+pragma
+no-cache
+priority
+u=0,i
+report-to
+{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=XNAEaQfswEBFyRdfXln%2Bn3%2BUJ%2FLSHpNclRt2QhEeZxsQVTyLoeb0bJLFfvTHPy33%2FcFZ50DrL9CmpANAdlWoPxmobluoy0eZ7IBzT3VoGAv%2F8iXiMAOxUlA04w%3D%3D"}]}
+server
+cloudflare
+server-timing
+cfCacheStatus;desc="DYNAMIC"
+server-timing
+cfEdge;dur=4,cfOrigin;dur=213
+server-timing
+cfExtPri
+set-cookie
+XSRF-TOKEN=eyJpdiI6Ikp3cUQ1RkRVUXN5WFRwM2puS0RZdlE9PSIsInZhbHVlIjoiZk1HNWNJSkE5SDhnZnNsY0lwRGFxRWJkeVNWbXp6M1FXKzFZNU5SLzFYekNJbHB0anF2ZlYxNnIyTk9GdXh0OEVFdEpLSzNUaWp4S2lueDk1VUVWWCtqUFZZY0tJSnRQM0JsMFVuSWliTlVoUHJVc09WN1F1czJpVTQybEpjM2UiLCJtYWMiOiIyMWJmNmEzYzZkNGMxOWM4MTdjNjhlOWRmZTYwM2ZhMmFiODE3MDc5MDJhNTBiYTI4OGE2YzE1NWU2YmZlNWRmIiwidGFnIjoiIn0%3D; expires=Mon, 02 Mar 2026 17:06:53 GMT; Max-Age=2628000; path=/; secure; samesite=lax
+set-cookie
+tmail_session=eyJpdiI6InRWWlNRaTMvUlB5Zk01RkFlQm56VGc9PSIsInZhbHVlIjoiVUpzUmowM3JUUys5OUF4WjA2Z2JyYXZnVk9GYWV1aW5nTFJoMDhsblA0WGI3dHJhZ3V5VXhJcUN3Um5TRU5zeitsamFnSUgzV3ByY1pWWHBoWmJCODg5SWRIdVh6ZkFIUkpibmtVYXI5K2FMbi9aZHZjSmk5UzdKSzFLSHJ6cDgiLCJtYWMiOiIxNWEzNGMzNTEzMjJkZDlkY2UyNzg0ZjE5MWUzODRjYjliNjM2NDJmNjhkNWZkZjZiYzlmYTJiZGRmZWQ0NzViIiwidGFnIjoiIn0%3D; expires=Mon, 02 Mar 2026 17:06:53 GMT; Max-Age=2628000; path=/; secure; httponly; samesite=lax
+speculation-rules
+"/cdn-cgi/speculation"
+vary
+accept-encoding
+x-powered-by
+PHP/8.3.17
+:authority
+edumailfree.com
+:method
+GET
+:path
+/mailbox
+:scheme
+https
+accept
+text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+accept-encoding
+gzip, deflate, br, zstd
+accept-language
+vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6
+cache-control
+max-age=0
+cookie
+cf_clearance=TqMXqjhY6QJEr43hoS_eae3qWCo.HfZ93QUSKK0gmNg-1769843194-1.2.1.1-0NPzNy8ww83PvYJIw0BLiI0QdD.oIMQPsxtOIDi7.Q0DGjerwvsAPoYmy7PnFH2qTnCiBGGwo5WxsMJy_w.iPQYy09zIqHJSD3Sn9eHxMjsrggLFiTPydTI.EjtcNRLZSlY7baea22Fy1TDOQ6._Ay1h.RTpuoRLGvYSkJdOXvjU28N5KoU_GRAqWUPhx28Fhv8Qh6b2rmiGkhU2dIoHDuRTas30hxP42KgoMvfaTCk; XSRF-TOKEN=eyJpdiI6IlFJaGwvZFJDOTB5RmxqSVhya09SUXc9PSIsInZhbHVlIjoiQjdadmR2c090ZmNQcXV3aWFJMVN2TUp2eHI0QlU3Q1BteUkwNFRQZ0czSzkwc1pMd2NId1dUUjRPZ05WYmwzdzBxQnZscVpnUEpmZEhEUnFNVFl3RG1TRnpyTWFJZUhvNTJtZDhwbFpZdmVNS0ZaSjhKT3NOSmNlUzZ2RC85OEIiLCJtYWMiOiI0MjMzMDRjMjM5YTYwYmU0NjEwMzRiMmI1ZTQ3NzQyMWE0MjNjNTg5YmM2MTRmNTU3YmU0NmVmYWE4ZmRjZTE5IiwidGFnIjoiIn0%3D; tmail_session=eyJpdiI6Ild5SHBIRTkwcDUzYVhCNEFybDh6cUE9PSIsInZhbHVlIjoiWUdiY3N5KzF6cjI4TnMveHQwSjlhdm1WQTBJUVdZczArSS9CT2c0OEtlVWdvN1Z2UndKaW4wMkxuK0RXUWcwRkg2RGt1aG9TK25lUmpLT2txYUZnV1pEa0loU1FKVTVqNnRENU9STk03YWtrRzRHZVRNa3dmaEdZek1JQXZhOFciLCJtYWMiOiJjNmMzYWQ1ODg1YWJmMmU3NDhjNzEwYTU0Yzk4MmIxMWY1MzE3Yjg3NDAzMzIyOGU2Nzg5MGYxMmQ2NWMyZGY5IiwidGFnIjoiIn0%3D
+priority
+u=0, i
+referer
+https://edumailfree.com/mailbox
+sec-ch-ua
+"Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"
+sec-ch-ua-mobile
+?0
+sec-ch-ua-platform
+"Windows"
+sec-fetch-dest
+empty
+sec-fetch-mode
+navigate
+sec-fetch-site
+same-origin
+upgrade-insecure-requests
+1
+user-agent
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+-----------------------------reponse------------------------------
+không thấy 
+------------------------------api2-----------------------------
+Request URL
+https://edumailfree.com/livewire/update
+Request Method
+POST
+Status Code
+200 OK (from service worker)
+Referrer Policy
+strict-origin-when-cross-origin
+alt-svc
+h3=":443"; ma=86400
+cache-control
+max-age=0, must-revalidate, no-cache, no-store, private
+cf-cache-status
+DYNAMIC
+cf-ray
+9c675e79591bcf50-SIN
+content-encoding
+gzip
+content-type
+application/json
+date
+Sat, 31 Jan 2026 07:06:54 GMT
+expires
+Fri, 01 Jan 1990 00:00:00 GMT
+nel
+{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+pragma
+no-cache
+priority
+u=1,i
+report-to
+{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=75BfssswEFegHa%2Fipk9H53lFzRh7J2IJC9G047jjabD49rvbmvCwNZ47Fgc9RqFN2LQ1lq6kF275iSg%2FZ4Z5TrKVztyCCQH4ssa7q5lNFvvYPQQsAyUChKqrWQ%3D%3D"}]}
+server
+cloudflare
+server-timing
+cfExtPri
+vary
+accept-encoding
+x-powered-by
+PHP/8.3.17
+content-type
+application/json
+referer
+https://edumailfree.com/mailbox
+sec-ch-ua
+"Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"
+sec-ch-ua-mobile
+?0
+sec-ch-ua-platform
+"Windows"
+user-agent
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+x-livewire
+------------------------------------payload--------------------------
+{"_token":"aMl68s8Ze3QUSfMNLw72w7IW55WAUKPVjrhmB9tT","components":[{"snapshot":"{\"data\":{\"in_app\":false,\"user\":null,\"domain\":\"teacher.semar.edu.pl\",\"domains\":[[\"academic.edu.rs\",\"semar.edu.pl\",\"gng.edu.pl\",\"agp.edu.pl\",\"gold.edu.pl\",\"bcm.edu.pl\",\"id.semar.edu.pl\",\"dev.semar.edu.pl\",\"student.semar.edu.pl\",\"teacher.semar.edu.pl\",\"portal.academic.edu.rs\",\"contact.academic.edu.rs\",\"students.academic.edu.rs\",\"library.gng.edu.pl\",\"research.gng.edu.pl\",\"exams.gng.edu.pl\",\"lab.agp.edu.pl\",\"up.agp.edu.pl\",\"campus.agp.edu.pl\",\"prime.gold.edu.pl\",\"student.gold.edu.pl\",\"elite.gold.edu.pl\",\"dev.bcm.edu.pl\",\"webmail.bcm.edu.pl\",\"hr.bcm.edu.pl\",\"student.neonet.ac.nz\"],{\"s\":\"arr\"}],\"email\":\"w7sple5zyl7@students.academic.edu.rs\",\"emails\":[[\"thuha234@academic.edu.rs\",\"thuha383@teacher.semar.edu.pl\",\"phiphi@teacher.semar.edu.pl\",\"m637ul0jp@student.neonet.ac.nz\",\"w7sple5zyl7@students.academic.edu.rs\"],{\"s\":\"arr\"}],\"captcha\":null,\"memberDomains\":[[],{\"s\":\"arr\"}]},\"memo\":{\"id\":\"lTs5qqs8xR5JHsuQqOSy\",\"name\":\"frontend.actions\",\"path\":\"mailbox\",\"method\":\"GET\",\"children\":[],\"scripts\":[],\"assets\":[],\"errors\":[],\"locale\":\"vi\"},\"checksum\":\"2ce648274ef2e1b49cf7f042985bf428211513da9db5095848304353bff7d680\"}","updates":{},"calls":[{"path":"","method":"__dispatch","params":["syncEmail",{"email":"w7sple5zyl7@students.academic.edu.rs"}]}]},{"snapshot":"{\"data\":{\"messages\":[[],{\"s\":\"arr\"}],\"deleted\":[[],{\"s\":\"arr\"}],\"error\":\"\",\"email\":\"w7sple5zyl7@students.academic.edu.rs\",\"initial\":false,\"overflow\":false},\"memo\":{\"id\":\"6WILA1fG8sh9UOnivpNN\",\"name\":\"frontend.app\",\"path\":\"mailbox\",\"method\":\"GET\",\"children\":[],\"scripts\":[],\"assets\":[],\"errors\":[],\"locale\":\"vi\"},\"checksum\":\"4f037af7ba81cd364fb7d35c632db9c06c8617dee7a3183adf52414b5e3373c6\"}","updates":{},"calls":[{"path":"","method":"__dispatch","params":["syncEmail",{"email":"w7sple5zyl7@students.academic.edu.rs"}]},{"path":"","method":"__dispatch","params":["fetchMessages",{}]}]}]}
+---------------------------------------reponse-------------------------
+{
+    "components": [
+        {
+            "snapshot": "{\"data\":{\"in_app\":false,\"user\":null,\"domain\":\"teacher.semar.edu.pl\",\"domains\":[[\"academic.edu.rs\",\"semar.edu.pl\",\"gng.edu.pl\",\"agp.edu.pl\",\"gold.edu.pl\",\"bcm.edu.pl\",\"id.semar.edu.pl\",\"dev.semar.edu.pl\",\"student.semar.edu.pl\",\"teacher.semar.edu.pl\",\"portal.academic.edu.rs\",\"contact.academic.edu.rs\",\"students.academic.edu.rs\",\"library.gng.edu.pl\",\"research.gng.edu.pl\",\"exams.gng.edu.pl\",\"lab.agp.edu.pl\",\"up.agp.edu.pl\",\"campus.agp.edu.pl\",\"prime.gold.edu.pl\",\"student.gold.edu.pl\",\"elite.gold.edu.pl\",\"dev.bcm.edu.pl\",\"webmail.bcm.edu.pl\",\"hr.bcm.edu.pl\",\"student.neonet.ac.nz\"],{\"s\":\"arr\"}],\"email\":\"w7sple5zyl7@students.academic.edu.rs\",\"emails\":[[\"thuha234@academic.edu.rs\",\"thuha383@teacher.semar.edu.pl\",\"phiphi@teacher.semar.edu.pl\",\"m637ul0jp@student.neonet.ac.nz\",\"w7sple5zyl7@students.academic.edu.rs\"],{\"s\":\"arr\"}],\"captcha\":null,\"memberDomains\":[[],{\"s\":\"arr\"}]},\"memo\":{\"id\":\"lTs5qqs8xR5JHsuQqOSy\",\"name\":\"frontend.actions\",\"path\":\"mailbox\",\"method\":\"GET\",\"children\":[],\"scripts\":[],\"assets\":[],\"errors\":[],\"locale\":\"vi\"},\"checksum\":\"2ce648274ef2e1b49cf7f042985bf428211513da9db5095848304353bff7d680\"}",
+            "effects": {
+                "returns": [
+                    null
+                ],
+                "html": "<div wire:id=\"lTs5qqs8xR5JHsuQqOSy\" x-data=\"{ in_app: false }\">\n    <div>\n        <div x-show.transition.in=\"in_app\" class=\"app-action mt-4 px-8\" style=\"display: none\">\n            <!--[if BLOCK]><![endif]--><!--[if ENDBLOCK]><![endif]-->\n\n            <form wire:submit.prevent=\"create\" method=\"post\">\n                <div class=\"max-w-screen-lg mx-auto flex space-x-2 items-center\">\n                    <!--[if BLOCK]><![endif]--><!--[if ENDBLOCK]><![endif]-->\n\n                    <div class=\"flex-1 bg-white dark:bg-gray-800 text-white dark:text-gray-100 bg-opacity-20 dark:bg-opacity-40 rounded-md flex items-center\">\n                        <input class=\"appearance-none bg-transparent flex-1 border-0 rounded-md py-4 px-5 focus:outline-none placeholder-white dark:placeholder-gray-400 placeholder-opacity-30\" type=\"text\" name=\"user\" wire:model.defer=\"user\" placeholder=\"Nh\u1eadp t\u00ean ng\u01b0\u1eddi d\u00f9ng\" \/>\n                        <div class=\"border-l-2 h-4 border-gray-200 dark:border-gray-600\"><\/div>\n                        <div class=\"relative\">\n                            <div class=\"relative\" x-data=\"{ open: false }\" @click.away=\"open = false\" @close.stop=\"open = false\">\n    <div @click=\"open = ! open\">\n        <input x-ref=\"domain\" type=\"text\" class=\"block appearance-none bg-transparent border-0 w-full py-4 px-5 pr-8 cursor-pointer focus:outline-none select-none rounded-md placeholder-white dark:placeholder-gray-400 placeholder-opacity-30\" placeholder=\"Ch\u1ecdn t\u00ean mi\u1ec1n\" name=\"domain\" wire:model=\"domain\" readonly \/>\n    <\/div>\n\n    <div x-show=\"open\" x-transition:enter=\"transition ease-out duration-200\" x-transition:enter-start=\"transform opacity-0 scale-95\" x-transition:enter-end=\"transform opacity-100 scale-100\" x-transition:leave=\"transition ease-in duration-75\" x-transition:leave-start=\"transform opacity-100 scale-100\" x-transition:leave-end=\"transform opacity-0 scale-95\" class=\"absolute z-50 mt-2 w-full rounded-md shadow-lg ltr:origin-top-right rtl:origin-top-left end-0 \" style=\"display: none\" @click=\"open = false\">\n        <div class=\"rounded-md ring-1 ring-black ring-opacity-5 py-1 bg-white dark:bg-gray-700\">\n            <!--[if BLOCK]><![endif]-->                                        <a x-on:click=\"\n                                            $refs.domain.value = 'academic.edu.rs'\n                                            $wire.setDomain('academic.edu.rs')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">academic.edu.rs<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'semar.edu.pl'\n                                            $wire.setDomain('semar.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">semar.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'gng.edu.pl'\n                                            $wire.setDomain('gng.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">gng.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'agp.edu.pl'\n                                            $wire.setDomain('agp.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">agp.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'gold.edu.pl'\n                                            $wire.setDomain('gold.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">gold.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'bcm.edu.pl'\n                                            $wire.setDomain('bcm.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">bcm.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'id.semar.edu.pl'\n                                            $wire.setDomain('id.semar.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">id.semar.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'dev.semar.edu.pl'\n                                            $wire.setDomain('dev.semar.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">dev.semar.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'student.semar.edu.pl'\n                                            $wire.setDomain('student.semar.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">student.semar.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'teacher.semar.edu.pl'\n                                            $wire.setDomain('teacher.semar.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">teacher.semar.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'portal.academic.edu.rs'\n                                            $wire.setDomain('portal.academic.edu.rs')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">portal.academic.edu.rs<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'contact.academic.edu.rs'\n                                            $wire.setDomain('contact.academic.edu.rs')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">contact.academic.edu.rs<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'students.academic.edu.rs'\n                                            $wire.setDomain('students.academic.edu.rs')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">students.academic.edu.rs<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'library.gng.edu.pl'\n                                            $wire.setDomain('library.gng.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">library.gng.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'research.gng.edu.pl'\n                                            $wire.setDomain('research.gng.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">research.gng.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'exams.gng.edu.pl'\n                                            $wire.setDomain('exams.gng.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">exams.gng.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'lab.agp.edu.pl'\n                                            $wire.setDomain('lab.agp.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">lab.agp.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'up.agp.edu.pl'\n                                            $wire.setDomain('up.agp.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">up.agp.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'campus.agp.edu.pl'\n                                            $wire.setDomain('campus.agp.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">campus.agp.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'prime.gold.edu.pl'\n                                            $wire.setDomain('prime.gold.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">prime.gold.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'student.gold.edu.pl'\n                                            $wire.setDomain('student.gold.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">student.gold.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'elite.gold.edu.pl'\n                                            $wire.setDomain('elite.gold.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">elite.gold.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'dev.bcm.edu.pl'\n                                            $wire.setDomain('dev.bcm.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">dev.bcm.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'webmail.bcm.edu.pl'\n                                            $wire.setDomain('webmail.bcm.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">webmail.bcm.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'hr.bcm.edu.pl'\n                                            $wire.setDomain('hr.bcm.edu.pl')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">hr.bcm.edu.pl<\/a>\n                                                                            <a x-on:click=\"\n                                            $refs.domain.value = 'student.neonet.ac.nz'\n                                            $wire.setDomain('student.neonet.ac.nz')\n                                        \" class=\"block px-4 py-2 text-sm leading-5 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out\">student.neonet.ac.nz<\/a>\n                                    <!--[if ENDBLOCK]><![endif]-->\n        <\/div>\n    <\/div>\n<\/div>\n                            <div class=\"pointer-events-none absolute inset-y-0 right-0 flex items-center px-5 text-gray-200 dark:text-gray-400\">\n                                <svg class=\"fill-current h-4 w-4\" xmlns=\"http:\/\/www.w3.org\/2000\/svg\" viewBox=\"0 0 20 20\"><path d=\"M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z\" \/><\/svg>\n                            <\/div>\n                        <\/div>\n                        <input class=\"block appearance-none rounded-r-md py-4 px-5 bg-teal-500 dark:bg-teal-600 text-white dark:text-gray-100 cursor-pointer focus:outline-none\" style=\"background-color: #0bbc60\" type=\"submit\" value=\"T\u1ea1o\" \/>\n                    <\/div>\n                <\/div>\n            <\/form>\n            <div class=\"py-2 text-gray-200 dark:text-gray-400 text-center\">or<\/div>\n            <form wire:submit.prevent=\"random\" class=\"flex justify-center mb-1\" method=\"post\">\n                <input class=\"appearance-none rounded-md py-2 px-5 bg-yellow-500 dark:bg-yellow-600 text-white dark:text-gray-100 cursor-pointer focus:outline-none\" style=\"background-color: #d7690f\" type=\"submit\" value=\"T\u1ea1o Email Ng\u1eabu nhi\u00ean\" \/>\n                <!--[if BLOCK]><![endif]-->                    <button type=\"button\" x-on:click=\"in_app = false\" class=\"ml-2 appearance-none rounded-md py-2 px-5 bg-white dark:bg-gray-800 bg-opacity-10 dark:bg-opacity-20 text-white dark:text-gray-100 text-sm cursor-pointer focus:outline-none\"><i class=\"fas fa-times\"><\/i><\/button>\n                <!--[if ENDBLOCK]><![endif]-->\n            <\/form>\n        <\/div>\n        <div x-show.transition.in=\"!in_app\" class=\"in-app-actions mt-4 px-8\" style=\"display: none\">\n            <form class=\"max-w-screen-lg mx-auto\" action=\"#\" method=\"post\">\n                <div class=\"relative\">\n                    <div class=\"relative\" x-data=\"{ open: false }\" @click.away=\"open = false\" @close.stop=\"open = false\">\n    <div @click=\"open = ! open\">\n        <div class=\"block appearance-none w-full bg-white dark:bg-gray-800 text-white dark:text-gray-100 py-4 px-5 pr-8 bg-opacity-10 dark:bg-opacity-20 rounded-md cursor-pointer focus:outline-none select-none\" id=\"email_id\">w7sple5zyl7@students.academic.edu.rs<\/div>\n    <\/div>\n\n    <div x-show=\"open\" x-transition:enter=\"transition ease-out duration-200\" x-transition:enter-start=\"transform opacity-0 scale-95\" x-transition:enter-end=\"transform opacity-100 scale-100\" x-transition:leave=\"transition ease-in duration-75\" x-transition:leave-start=\"transform opacity-100 scale-100\" x-transition:leave-end=\"transform opacity-0 scale-95\" class=\"absolute z-50 mt-2 w-full rounded-md shadow-lg origin-top \" style=\"display: none\" @click=\"open = false\">\n        <div class=\"rounded-md ring-1 ring-black ring-opacity-5 py-1 bg-white dark:bg-gray-700\">\n            <!--[if BLOCK]><![endif]-->                                <a class=\"block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-800 transition duration-150 ease-in-out text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700\" href=\"https:\/\/edumailfree.com\/switch\/thuha234@academic.edu.rs\">thuha234@academic.edu.rs<\/a>\n                                                            <a class=\"block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-800 transition duration-150 ease-in-out text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700\" href=\"https:\/\/edumailfree.com\/switch\/thuha383@teacher.semar.edu.pl\">thuha383@teacher.semar.edu.pl<\/a>\n                                                            <a class=\"block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-800 transition duration-150 ease-in-out text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700\" href=\"https:\/\/edumailfree.com\/switch\/phiphi@teacher.semar.edu.pl\">phiphi@teacher.semar.edu.pl<\/a>\n                                                            <a class=\"block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-800 transition duration-150 ease-in-out text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700\" href=\"https:\/\/edumailfree.com\/switch\/m637ul0jp@student.neonet.ac.nz\">m637ul0jp@student.neonet.ac.nz<\/a>\n                                                            <a class=\"block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-800 transition duration-150 ease-in-out text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700\" href=\"https:\/\/edumailfree.com\/switch\/w7sple5zyl7@students.academic.edu.rs\">w7sple5zyl7@students.academic.edu.rs<\/a>\n                            <!--[if ENDBLOCK]><![endif]-->\n        <\/div>\n    <\/div>\n<\/div>\n                    <div class=\"pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white dark:text-gray-100\">\n                        <svg class=\"fill-current h-4 w-4\" xmlns=\"http:\/\/www.w3.org\/2000\/svg\" viewBox=\"0 0 20 20\"><path d=\"M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z\" \/><\/svg>\n                    <\/div>\n                <\/div>\n            <\/form>\n            <div class=\"divider mt-5\"><\/div>\n            <div class=\"grid grid-cols-2 lg:grid-cols-4 gap-2 max-w-screen-lg mx-auto\">\n                <div class=\"btn_copy bg-white dark:bg-gray-800 bg-opacity-10 dark:bg-opacity-20 text-white dark:text-gray-100 rounded-md py-2 text-center hover:bg-opacity-25 dark:hover:bg-opacity-40 cursor-pointer flex justify-center items-center space-x-2\">\n                    <i class=\"far fa-copy\"><\/i>\n                    <div>Sao ch\u00e9p<\/div>\n                <\/div>\n                <div onclick=\"this.querySelector('#refresh').classList.remove('pause-spinner')\" wire:click=\"$dispatch('fetchMessages')\" class=\"bg-white dark:bg-gray-800 bg-opacity-10 dark:bg-opacity-20 text-white dark:text-gray-100 rounded-md py-5 text-center hover:bg-opacity-25 dark:hover:bg-opacity-40 cursor-pointer flex justify-center items-center space-x-2\">\n                    <i id=\"refresh\" class=\"fas fa-sync-alt fa-spin\"><\/i>\n                    <div>L\u00e0m m\u1edbi<\/div>\n                <\/div>\n                <div x-on:click=\"in_app = true\" class=\"bg-white dark:bg-gray-800 bg-opacity-10 dark:bg-opacity-20 text-white dark:text-gray-100 rounded-md py-5 text-center hover:bg-opacity-25 dark:hover:bg-opacity-40 cursor-pointer flex justify-center items-center space-x-2\">\n                    <i class=\"far fa-plus-square\"><\/i>\n                    <div>M\u1edbi<\/div>\n                <\/div>\n                <div wire:click=\"deleteEmail\" class=\"bg-white dark:bg-gray-800 bg-opacity-10 dark:bg-opacity-20 text-white dark:text-gray-100 rounded-md py-5 text-center hover:bg-opacity-25 dark:hover:bg-opacity-40 cursor-pointer flex justify-center items-center space-x-2\">\n                    <i class=\"far fa-trash-alt\"><\/i>\n                    <div>Xo\u00e1<\/div>\n                <\/div>\n            <\/div>\n        <\/div>\n    <\/div>\n    <!--[if ENDBLOCK]><![endif]-->\n<\/div>\n"
+            }
+        },
+        {
+            "snapshot": "{\"data\":{\"messages\":[[],{\"s\":\"arr\"}],\"deleted\":[[],{\"s\":\"arr\"}],\"error\":\"\",\"email\":\"w7sple5zyl7@students.academic.edu.rs\",\"initial\":true,\"overflow\":false},\"memo\":{\"id\":\"6WILA1fG8sh9UOnivpNN\",\"name\":\"frontend.app\",\"path\":\"mailbox\",\"method\":\"GET\",\"children\":[],\"scripts\":[],\"assets\":[],\"errors\":[],\"locale\":\"vi\"},\"checksum\":\"8914eda9bd008e8f6e871f9c3a890929fa52eb33aee1ab946164dbad855db87c\"}",
+            "effects": {
+                "returns": [
+                    null,
+                    null
+                ],
+                "html": "<main wire:id=\"6WILA1fG8sh9UOnivpNN\" class=\"flex-1\" x-data=\"{ show: false, id: 0 }\">\n    <!--[if BLOCK]><![endif]--><!--[if ENDBLOCK]><![endif]-->\n\n    <div class=\"text-sm lg:rounded-lg\">\n        <!--[if BLOCK]><![endif]-->            <div id=\"empty-inbox\" class=\"flex items-center\">\n                <div class=\"flex-1 flex flex-col justify-center items-center text-gray-500 dark:text-gray-400 h-80\">\n                    <div class=\"text-lg\">H\u1ed9p th\u01b0 \u0111\u1ebfn tr\u1ed1ng<\/div>\n                <\/div>\n            <\/div>\n        <!--[if ENDBLOCK]><![endif]-->\n    <\/div>\n<\/main>\n",
+                "dispatches": [
+                    {
+                        "name": "stopLoader",
+                        "params": []
+                    },
+                    {
+                        "name": "loadDownload",
+                        "params": []
+                    }
+                ]
+            }
+        }
+    ],
+    "assets": []
+}
+-------------------------------------api3---------------------------
+Request URL
+https://edumailfree.com/livewire/update
+Request Method
+POST
+Status Code
+200 OK (from service worker)
+Referrer Policy
+strict-origin-when-cross-origin
+alt-svc
+h3=":443"; ma=86400
+cache-control
+max-age=0, must-revalidate, no-cache, no-store, private
+cf-cache-status
+DYNAMIC
+cf-ray
+9c675e9c5e32cf50-SIN
+content-encoding
+gzip
+content-type
+application/json
+date
+Sat, 31 Jan 2026 07:07:00 GMT
+expires
+Fri, 01 Jan 1990 00:00:00 GMT
+nel
+{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+pragma
+no-cache
+priority
+u=1,i
+report-to
+{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=Y3ZkXwlXeDbwcb9vOuIhoeR5JqvCTzKgVcE0vOrl7pEBUl9fUOUI8FiITc1GxNORTxuHLCnjQ2G8k7hTTTWGKS4SvB1Vieo2NPu9IxusZWA4EgguIXG6TtfYvA%3D%3D"}]}
+server
+cloudflare
+server-timing
+cfExtPri
+vary
+accept-encoding
+x-powered-by
+PHP/8.3.17
+content-type
+application/json
+referer
+https://edumailfree.com/mailbox
+sec-ch-ua
+"Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"
+sec-ch-ua-mobile
+?0
+sec-ch-ua-platform
+"Windows"
+user-agent
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+x-livewire
+---------------------------------payload------------------------
+{"_token":"aMl68s8Ze3QUSfMNLw72w7IW55WAUKPVjrhmB9tT","components":[{"snapshot":"{\"data\":{\"messages\":[[],{\"s\":\"arr\"}],\"deleted\":[[],{\"s\":\"arr\"}],\"error\":\"\",\"email\":\"w7sple5zyl7@students.academic.edu.rs\",\"initial\":true,\"overflow\":false},\"memo\":{\"id\":\"6WILA1fG8sh9UOnivpNN\",\"name\":\"frontend.app\",\"path\":\"mailbox\",\"method\":\"GET\",\"children\":[],\"scripts\":[],\"assets\":[],\"errors\":[],\"locale\":\"vi\"},\"checksum\":\"8914eda9bd008e8f6e871f9c3a890929fa52eb33aee1ab946164dbad855db87c\"}","updates":{},"calls":[{"path":"","method":"__dispatch","params":["fetchMessages",{}]}]}]}
+-------------------------------reponse---------------------
+{
+    "components": [
+        {
+            "snapshot": "{\"data\":{\"messages\":[[],{\"s\":\"arr\"}],\"deleted\":[[],{\"s\":\"arr\"}],\"error\":\"\",\"email\":\"w7sple5zyl7@students.academic.edu.rs\",\"initial\":true,\"overflow\":false},\"memo\":{\"id\":\"6WILA1fG8sh9UOnivpNN\",\"name\":\"frontend.app\",\"path\":\"mailbox\",\"method\":\"GET\",\"children\":[],\"scripts\":[],\"assets\":[],\"errors\":[],\"locale\":\"vi\"},\"checksum\":\"8914eda9bd008e8f6e871f9c3a890929fa52eb33aee1ab946164dbad855db87c\"}",
+            "effects": {
+                "returns": [
+                    null
+                ],
+                "html": "<main wire:id=\"6WILA1fG8sh9UOnivpNN\" class=\"flex-1\" x-data=\"{ show: false, id: 0 }\">\n    <!--[if BLOCK]><![endif]--><!--[if ENDBLOCK]><![endif]-->\n\n    <div class=\"text-sm lg:rounded-lg\">\n        <!--[if BLOCK]><![endif]-->            <div id=\"empty-inbox\" class=\"flex items-center\">\n                <div class=\"flex-1 flex flex-col justify-center items-center text-gray-500 dark:text-gray-400 h-80\">\n                    <div class=\"text-lg\">H\u1ed9p th\u01b0 \u0111\u1ebfn tr\u1ed1ng<\/div>\n                <\/div>\n            <\/div>\n        <!--[if ENDBLOCK]><![endif]-->\n    <\/div>\n<\/main>\n",
+                "dispatches": [
+                    {
+                        "name": "stopLoader",
+                        "params": []
+                    },
+                    {
+                        "name": "loadDownload",
+                        "params": []
+                    }
+                ]
+            }
+        }
+    ],
+    "assets": []
+}

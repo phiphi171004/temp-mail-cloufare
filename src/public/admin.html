@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - TempMail</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .login-form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .admin-panel {
+            display: none;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .default-source-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .default-source-selector select {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .default-source-selector button {
+            padding: 12px 24px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .default-source-selector button:hover {
+            background: #45a049;
+        }
+
+        .sources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .source-card {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .source-card.enabled {
+            border-color: #4CAF50;
+            background: #f1f8f4;
+        }
+
+        .source-card.disabled {
+            border-color: #f44336;
+            background: #fef1f0;
+            opacity: 0.7;
+        }
+
+        .source-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .source-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .source-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .source-badge.default {
+            background: #667eea;
+            color: white;
+        }
+
+        .source-badge.enabled {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .source-badge.disabled {
+            background: #f44336;
+            color: white;
+        }
+
+        .source-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .source-actions button {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-enable {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-enable:hover {
+            background: #45a049;
+        }
+
+        .btn-disable {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-disable:hover {
+            background: #da190b;
+        }
+
+        .btn-logout {
+            background: #ff9800;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .btn-logout:hover {
+            background: #e68900;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i> Admin Panel</h1>
+            <p>Quản lý nguồn mail TempMail</p>
+        </div>
+
+        <div class="content">
+            <!-- Login Form -->
+            <div class="login-form" id="loginForm">
+                <div class="alert" id="loginAlert"></div>
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i> Mật khẩu Admin
+                    </label>
+                    <input type="password" id="password" placeholder="Nhập mật khẩu..." autocomplete="off">
+                </div>
+                <button class="btn" onclick="login()">
+                    <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                </button>
+            </div>
+
+            <!-- Admin Panel -->
+            <div class="admin-panel" id="adminPanel">
+                <div class="alert" id="adminAlert"></div>
+
+                <!-- Stats -->
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalSources">0</div>
+                        <div class="stat-label">Tổng nguồn</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="enabledSources">0</div>
+                        <div class="stat-label">Đang bật</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="disabledSources">0</div>
+                        <div class="stat-label">Đang tắt</div>
+                    </div>
+                </div>
+
+                <!-- Default Source Selector -->
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-star"></i> Nguồn mặc định
+                    </div>
+                    <div class="default-source-selector">
+                        <select id="defaultSourceSelect">
+                            <option value="">Chọn nguồn mặc định...</option>
+                        </select>
+                        <button onclick="setDefaultSource()">
+                            <i class="fas fa-save"></i> Lưu
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sources Management -->
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-list"></i> Quản lý nguồn mail
+                    </div>
+                    <div class="sources-grid" id="sourcesGrid">
+                        <!-- Sources will be loaded here -->
+                    </div>
+                </div>
+
+                <button class="btn btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
