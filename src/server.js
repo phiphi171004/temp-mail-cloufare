@@ -907,7 +907,7 @@ app.get('/api/sources/enabled', async (req, res) => {
 });
 
 /**
- * GET /health - Health check endpoint
+ * GET/HEAD /health - Health check endpoint
  */
 app.get('/health', (req, res) => {
   const uptime = (Date.now() - serverStartTime) / 1000; // seconds
@@ -936,6 +936,11 @@ app.get('/health', (req, res) => {
   }
 
   res.json(health);
+});
+
+// HEAD method for health check (same as GET but no body)
+app.head('/health', (req, res) => {
+  res.status(200).end();
 });
 
 /**
