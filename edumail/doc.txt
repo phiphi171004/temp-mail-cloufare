@@ -1,0 +1,55 @@
+                                                      valign=&quot;top&quot;\r\n                                                                align=&quot;center&quot;&gt;\r\n                                                                &lt;a target=&quot;blank&quot; href=&quot;https:\/\/bizze.biz\/?#&quot;\r\n                                                                   target=&quot;_blank&quot;\r\n                                                                   style=&quot;background: #6474FF; border-radius: 42px; padding: 18px 36px; text-align: center; text-decoration: none; display: inline-block; cursor: pointer; &quot;&gt;\r\n                                                                    &lt;span\r\n                                                                          style=&quot;font-family: SwissNow, &#039;SwissNow&#039;, arial, sans-serif; font-style: normal; font-weight: 500; font-size: 14px; line-height: 20px; color: #ffffff;&quot;&gt;\r\n                                                                        CTA\r\n                                                                    &lt;\/span&gt;\r\n                                                                &lt;\/a&gt;\r\n                                                            &lt;\/td&gt;\r\n                                                        &lt;\/tr&gt; --&gt;\r\n                                                        &lt;!-- &lt;tr&gt;\r\n                                                            &lt;td\r\n                                                                valign=&quot;center&quot;\r\n                                                                align=&quot;center&quot;\r\n                                                                style=&quot;padding-bottom: 26px; margin: 0px; border-spacing: 0;width: 100%;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;\r\n                                                                &lt;div\r\n                                                                     style=&quot;text-align: center; padding: 20px 26px; border: 1px solid #D9D9D9; border-radius: 12px; color: #AAAAAA; font-family: SwissNow, &#039;SwissNow&#039;, arial, sans-serif; \r\n                                                      font-style: normal; font-weight: 400; font-size: 10px; line-height: 150%; margin: 0 auto;&quot;&gt;\r\n                                                                    If\r\n                                                                    the\r\n                                                                    button\r\n                                                                    is\r\n                                                                    not\r\n                                                                    working,\r\n                                                                    copy\r\n                                                                    and\r\n                                                                    paste\r\n                                                                    the\r\n                                                                    following\r\n                                                                    URL\r\n                                                                    in\r\n                                                                    your\r\n                                                                    browser:\r\n                                                                &lt;\/div&gt;\r\n                                                            &lt;\/td&gt;\r\n                                                        &lt;\/tr&gt; --&gt;\r\n                                                        &lt;tr style=&quot;box-sizing: border-box; direction: ltr;&quot;&gt;\r\n                                                            &lt;td style=&quot;height: 0.5px; width: 100%; background-color: #D9D9D9; box-sizing: border-box; direction: ltr;&quot;&gt;\r\n                                                            &lt;\/td&gt;\r\n                                                        &lt;\/tr&gt;\r\n                                                        &lt;tr style=&quot;box-sizing: border-box; direction: ltr;&quot;&gt;\r\n                                                            &lt;td style=&quot;color: #AAAAAA; font-family: SwissNow, &amp;quot;SwissNow&amp;quot;, arial, sans-serif; font-size: 9px; font-style: normal; font-weight: 400; line-height: 150%; padding-top: 26px; text-align: center; display: block; margin: 0 auto; box-sizing: border-box; direction: ltr;&quot;&gt;This is an automatic email, so please don\u2019t reply\r\n                                                                to it. If you have\r\n                                                                any questions or need more\r\n                                                                help, drop us a line through the Live Chat on our\r\n                                                                website.\r\n                                                                You are receiving this email because you are a VEED user\r\n                                                                or\r\n                                                                you signed up to receive emails from VEED.\r\n                                                                &lt;br style=&quot;box-sizing: border-box; direction: ltr;&quot;&gt;&lt;br style=&quot;box-sizing: border-box; direction: ltr;&quot;&gt;\u00a92026\r\n                                                                VEED\r\n                                                                Veed Limited. Unit 12, 2-20 Scrutton Street, London,\r\n                                                                EC2A\r\n                                                                4QE\r\n                                                            &lt;\/td&gt;\r\n                                                        &lt;\/tr&gt;\r\n                                                &lt;\/tbody&gt;&lt;\/table&gt;\r\n                                            &lt;\/td&gt;\r\n                                        &lt;\/tr&gt;\r\n                                    &lt;\/tbody&gt;&lt;\/table&gt;\r\n                                &lt;\/td&gt;\r\n                            &lt;\/tr&gt;\r\n                        &lt;\/tbody&gt;\r\n                    &lt;\/table&gt;\r\n                &lt;\/td&gt;\r\n            &lt;\/tr&gt;\r\n        &lt;\/tbody&gt;&lt;\/table&gt;\r\n    &lt;\/center&gt;\r\n\r\n\r\n&lt;img src=&quot;https:\/\/ea.pstmrk.it\/open?m=v3_1.dWyOVQoZj9s60Jimu8kmsA.C8jU0N4vz9vHbMBitYDaDNmqy67zWwwJzb5DMtDZJiuLv3WQd9ixcicqyUFkRReBw2Iarhqb2sG19sDrzdrnvI6hKF3mYs0-8KJslViLbyeqIuYwyXpqT4zkybYNnzVKY6rsYGUzdoPPV8FoR9xe_mD86uTJsRNIUZHcFqVoPLbmJzYRou9ltXhqoqwGii4Wz_SdAj07v4RF-0PsOJv5FpD7YTDBzjLHR17TiX_kv-m0YLwsLoc96NYb6M8Txb2FVV7tabiyWlU71liUO9JqaMAvP-5SjaqoUddrYEuutFURRpfqclth664hl1Mfvm8JtQClm2iHyV_E4pvFeXe8X5Ms9gsh5YVUf9CouF6naLFZmeAL8qqpLApdNdpkwek5NYhmKf3vrsyH6wQ61YL9-1nK0ckxtWNE67nPrlVDnVkAkKi-mtaOKkxW0VpKXXxhgCvKol_eWt5o0wFL2mdwLSw827Wf5KmsbVwhBVARZpvmXY3zw6x5hDibXhkvb0I9X1dRaErLCYU1NrGgZUFx2g&quot; width=&quot;1&quot; height=&quot;1&quot; border=&quot;0&quot; alt=&quot;&quot; \/&gt;&lt;\/body&gt;&lt;\/html&gt;\r\n\" frameborder=\"0\"><\/iframe>\n                                <!--[if BLOCK]><![endif]--><!--[if ENDBLOCK]><![endif]-->\n                            <\/div>\n                        <\/div>\n                    <!--[if ENDBLOCK]><![endif]-->\n                <\/div>\n            <\/div>\n        <!--[if ENDBLOCK]><![endif]-->\n    <\/div>\n<\/main>\n",
+
+                "dispatches": [
+
+                    {
+
+                        "name": "showNewMailNotification",
+
+                        "params": [
+
+                            {
+
+                                "subject": "wants to join your VEED workspace",
+
+                                "sender_name": "VEED",
+
+                                "sender_email": "info@account.veed.io"
+
+                            }
+
+                        ]
+
+                    },
+
+                    {
+
+                        "name": "stopLoader",
+
+                        "params": []
+
+                    },
+
+                    {
+
+                        "name": "loadDownload",
+
+                        "params": []
+
+                    }
+
+                ]
+
+            }
+
+        }
+
+    ],
+
+    "assets": []
+
+}
+
+
+
+bạn hiểu cách lấy message chưa
