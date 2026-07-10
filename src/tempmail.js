@@ -77,9 +77,35 @@ export class TempMail {
       username = username.trim();
     }
 
+    // Chặn domain rác: null / "null" / "undefined" / rỗng (gây email user@null)
+    const isValidDomain = (d) => {
+      if (d == null) return false;
+      const s = String(d).trim();
+      if (!s || s === 'null' || s === 'undefined' || s === 'None') return false;
+      return s.includes('.') && s.length >= 3;
+    };
+    if (!isValidDomain(domain)) {
+      domain = null;
+    } else {
+      domain = String(domain).trim();
+    }
+    if (!isValidDomain(this.domain)) {
+      this.domain = this.sourceManager.getCurrentDefaultDomain()
+        || (this.sourceManager.getCurrentDomains() || [])[0]
+        || null;
+      if (!isValidDomain(this.domain)) this.domain = null;
+    }
+
     // Chọn domain: Ưu tiên domain truyền vào, nếu không có thì dùng default
     const availableDomains = this.sourceManager.getCurrentDomains();
-    const selectedDomain = (domain && availableDomains.includes(domain)) ? domain : this.domain;
+    let selectedDomain = (domain && availableDomains.includes(domain)) ? domain : this.domain;
+    // NoopMail: domain list động qua /api/rd — cho phép domain hợp lệ dù chưa có trong list
+    if (!isValidDomain(selectedDomain) && isValidDomain(domain)) {
+      selectedDomain = domain;
+    }
+    if (!isValidDomain(selectedDomain)) {
+      selectedDomain = null;
+    }
 
     // Xử lý theo nguồn mail
     if (this.sourceId === 'imail') {
@@ -105,6 +131,14 @@ export class TempMail {
       return await this.createEmailEduMail(username, selectedDomain);
     } else if (this.sourceId === 'apple') {
       return await this.createEmailApple(username, selectedDomain);
+    } else if (this.sourceId === 'generatoremail') {
+      return await this.createEmailGeneratorEmail(username, selectedDomain);
+    } else if (this.sourceId === 'moakt') {
+      return await this.createEmailMoakt(username, selectedDomain);
+    } else if (this.sourceId === 'tempmailapi') {
+      return await this.createEmailTempMailApi(username, selectedDomain);
+    } else if (this.sourceId === 'inboxes') {
+      return await this.createEmailInboxes(username, selectedDomain);
     } else {
       return await this.createEmailTMail(username, selectedDomain);
     }
@@ -157,10 +191,22 @@ export class TempMail {
    */
   async createEmailNoopMail(username, domain) {
     try {
+      // Đảm bảo client đã init + có domain (tránh user@null)
+      if (!this.client) {
+        await this.init('noopmail');
+      }
       const result = await this.client.createEmail(username, domain);
 
       if (result.success) {
+        // Chặn response domain rác
+        if (!result.domain || result.domain === 'null' || String(result.email || '').endsWith('@null')) {
+          return {
+            success: false,
+            error: 'NoopMail trả domain không hợp lệ, thử lại'
+          };
+        }
         this.currentEmail = result.email;
+        this.domain = result.domain;
         if (!this.emails.includes(this.currentEmail)) {
           this.emails.push(this.currentEmail);
         }
@@ -311,12 +357,29 @@ export class TempMail {
    */
   async createEmailETempMail(username, domain) {
     try {
-      // eTempMail không cần username (luôn random)
-      // Chỉ cần domain
+      // eTempMail không cần username (luôn random) — chỉ chọn domain
+      // Lưu ý: từ 2026 API bắt buộc Cloudflare Turnstile cf_token
       const result = await this.client.createEmail(null, domain);
 
       if (result.success) {
+        // Double-check bot-block fake email
+        const email = String(result.email || '').toLowerCase();
+        if (
+          email.includes('get-a-real-job') ||
+          email.includes('never.gonna.give.you.up') ||
+          email.includes('ip_logged')
+        ) {
+          return {
+            success: false,
+            error:
+              'eTempMail chặn bot (Cloudflare Turnstile). Không thể tạo mail thật từ server — hãy dùng nguồn khác.',
+            code: 'ETEMPMAIL_TURNSTILE_BLOCKED',
+            blocked: true
+          };
+        }
+
         this.currentEmail = result.email;
+        if (result.domain) this.domain = result.domain;
 
         if (!this.emails.includes(this.currentEmail)) {
           this.emails.push(this.currentEmail);
@@ -334,7 +397,9 @@ export class TempMail {
 
       return {
         success: false,
-        error: result.error || 'Không thể tạo email'
+        error: result.error || 'Không thể tạo email',
+        code: result.code,
+        blocked: result.blocked || false
       };
     } catch (error) {
       // Lỗi tạo email eTempMail
@@ -540,6 +605,44 @@ export class TempMail {
           expiresAt: result.expiresAt,
           // Trả về cookies để frontend lưu vào localStorage
           cookies: this.client.getCookiesForStorage()
+        };
+      }
+
+      return {
+        success: false,
+        error: result.error || 'Không thể tạo email'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Tạo email cho nguồn GeneratorEmail (generator.email)
+   */
+  async createEmailGeneratorEmail(username, selectedDomain) {
+    try {
+      const result = await this.client.createEmail(username, selectedDomain);
+
+      if (result.success) {
+        this.currentEmail = result.email;
+
+        // Set email vào client để fetchMessages có thể dùng
+        if (this.client && typeof this.client.setCurrentEmail === 'function') {
+          this.client.setCurrentEmail(this.currentEmail);
+        }
+
+        if (!this.emails.includes(this.currentEmail)) {
+          this.emails.push(this.currentEmail);
+        }
+
+        return {
+          success: true,
+          email: this.currentEmail,
+          message: `Email tạm đã được tạo: ${this.currentEmail}`
         };
       }
 
@@ -922,6 +1025,33 @@ export class TempMail {
       return { success: true, message: 'Email synced successfully' };
     }
 
+    // GeneratorEmail: Set current email trong client
+    if (this.sourceId === 'generatoremail') {
+      if (this.client && typeof this.client.setCurrentEmail === 'function') {
+        this.client.setCurrentEmail(this.currentEmail);
+        console.log('[TempMail] GeneratorEmail email set to:', this.currentEmail);
+      }
+      return { success: true, message: 'Email synced successfully' };
+    }
+
+    // Moakt: Set current email trong client
+    if (this.sourceId === 'moakt') {
+      if (this.client && typeof this.client.setCurrentEmail === 'function') {
+        this.client.setCurrentEmail(this.currentEmail);
+        console.log('[TempMail] Moakt email set to:', this.currentEmail);
+      }
+      return { success: true, message: 'Email synced successfully' };
+    }
+
+    // TempMailAPI: Set current email trong client
+    if (this.sourceId === 'tempmailapi' || this.sourceId === 'inboxes') {
+      if (this.client && typeof this.client.setCurrentEmail === 'function') {
+        this.client.setCurrentEmail(this.currentEmail);
+        console.log(`[TempMail] ${this.sourceId} email set to:`, this.currentEmail);
+      }
+      return { success: true, message: 'Email synced successfully' };
+    }
+
     // Apple: Set token và email trong client (giống MailIO)
     if (this.sourceId === 'apple') {
       if (this.client && typeof this.client.setToken === 'function') {
@@ -1182,7 +1312,7 @@ export class TempMail {
       };
     }
 
-    if (this.sourceId === 'noopmail' || this.sourceId === 'mailio' || this.sourceId === 'temporarymail' || this.sourceId === 'priyo' || this.sourceId === 'apple') {
+    if (this.sourceId === 'noopmail' || this.sourceId === 'mailio' || this.sourceId === 'temporarymail' || this.sourceId === 'priyo' || this.sourceId === 'apple' || this.sourceId === 'generatoremail' || this.sourceId === 'moakt' || this.sourceId === 'tempmailapi' || this.sourceId === 'inboxes') {
       // TempMail ID, NoopMail, MailIO, TemporaryMail, Priyo và Apple: Gọi trực tiếp method createRandomEmail
       try {
         // Starting createRandomEmail
@@ -1197,7 +1327,29 @@ export class TempMail {
         // createRandomEmail result
 
         if (result.success) {
+          // Chuẩn hóa domain: nhiều client (inboxes, ...) chỉ trả email, không trả domain
+          const emailStr = result.email ? String(result.email) : '';
+          let domainFromResult = result.domain;
+          if ((!domainFromResult || domainFromResult === 'null' || domainFromResult === 'undefined')
+            && emailStr.includes('@')) {
+            domainFromResult = emailStr.split('@').pop();
+          }
+
+          // Chỉ chặn case thật sự hỏng: thiếu email hoặc domain = null/"null"
+          const domainBad = !domainFromResult
+            || domainFromResult === 'null'
+            || domainFromResult === 'undefined'
+            || !String(domainFromResult).includes('.');
+          if (!emailStr || !emailStr.includes('@') || emailStr.endsWith('@null') || domainBad) {
+            return {
+              success: false,
+              error: 'Domain không hợp lệ, vui lòng thử lại'
+            };
+          }
+
+          result.domain = domainFromResult;
           this.currentEmail = result.email;
+          this.domain = domainFromResult;
 
           // MailIO, TemporaryMail và Apple: Lưu token/secretKey vào client
           if (this.sourceId === 'mailio' && result.token) {
@@ -1304,6 +1456,14 @@ export class TempMail {
       return await this.fetchMessagesEduMail();
     } else if (this.sourceId === 'apple') {
       return await this.fetchMessagesApple();
+    } else if (this.sourceId === 'generatoremail') {
+      return await this.fetchMessagesGeneratorEmail();
+    } else if (this.sourceId === 'moakt') {
+      return await this.fetchMessagesMoakt();
+    } else if (this.sourceId === 'tempmailapi') {
+      return await this.fetchMessagesTempMailApi();
+    } else if (this.sourceId === 'inboxes') {
+      return await this.fetchMessagesInboxes();
     } else {
       return await this.fetchMessagesTMail();
     }
@@ -1386,8 +1546,8 @@ export class TempMail {
       };
     }
 
-    // NoopMail, TemporaryMail, MailIO và Apple: Gọi API để lấy chi tiết message
-    if ((this.sourceId === 'noopmail' || this.sourceId === 'temporarymail' || this.sourceId === 'mailio' || this.sourceId === 'apple') && this.client && typeof this.client.getMessageDetail === 'function') {
+    // NoopMail, TemporaryMail, MailIO, Apple, GeneratorEmail và Moakt: Gọi API để lấy chi tiết message
+    if ((this.sourceId === 'noopmail' || this.sourceId === 'temporarymail' || this.sourceId === 'mailio' || this.sourceId === 'apple' || this.sourceId === 'generatoremail' || this.sourceId === 'moakt' || this.sourceId === 'tempmailapi' || this.sourceId === 'inboxes') && this.client && typeof this.client.getMessageDetail === 'function') {
       return await this.client.getMessageDetail(messageId);
     }
 
@@ -2035,7 +2195,7 @@ export class TempMail {
       if (result.success) {
         // Parse messages giống TMail (có thể có nested arrays)
         let rawMessages = result.messages || [];
-        
+
         // Flatten nested arrays - EduMail format: [[msg1], [msg2], ...]
         let flatMessages = [];
         for (const item of rawMessages) {
@@ -2190,6 +2350,205 @@ export class TempMail {
 
       return result;
     } catch (error) {
+      return {
+        success: false,
+        error: error.message,
+        messages: [],
+        count: 0
+      };
+    }
+  }
+
+  /**
+   * Fetch messages cho GeneratorEmail
+   */
+  async fetchMessagesGeneratorEmail() {
+    try {
+      if (!this.currentEmail) {
+        return { success: true, messages: [], count: 0 };
+      }
+
+      const result = await this.client.fetchMessages();
+      return result;
+    } catch (error) {
+      console.error('[TempMail] Error fetching GeneratorEmail messages:', error.message);
+      return {
+        success: false,
+        error: error.message,
+        messages: [],
+        count: 0
+      };
+    }
+  }
+
+  /**
+   * Tạo email cho nguồn Moakt (moakt.com)
+   */
+  async createEmailMoakt(username, selectedDomain) {
+    try {
+      const result = await this.client.createEmail(username, selectedDomain);
+
+      if (result.success) {
+        this.currentEmail = result.email;
+
+        if (this.client && typeof this.client.setCurrentEmail === 'function') {
+          this.client.setCurrentEmail(this.currentEmail);
+        }
+
+        if (!this.emails.includes(this.currentEmail)) {
+          this.emails.push(this.currentEmail);
+        }
+
+        return {
+          success: true,
+          email: this.currentEmail,
+          message: `Email tạm đã được tạo: ${this.currentEmail}`
+        };
+      }
+
+      return {
+        success: false,
+        error: result.error || 'Không thể tạo email'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Fetch messages cho Moakt
+   */
+  async fetchMessagesMoakt() {
+    try {
+      if (!this.currentEmail) {
+        return { success: true, messages: [], count: 0 };
+      }
+
+      const result = await this.client.fetchMessages();
+      return result;
+    } catch (error) {
+      console.error('[TempMail] Error fetching Moakt messages:', error.message);
+      return {
+        success: false,
+        error: error.message,
+        messages: [],
+        count: 0
+      };
+    }
+  }
+
+  /**
+   * Tạo email cho TempMailAPI
+   */
+  async createEmailTempMailApi(username, selectedDomain) {
+    try {
+      const result = await this.client.createEmail(username, selectedDomain);
+
+      if (result.success) {
+        this.currentEmail = result.email;
+
+        if (this.client && typeof this.client.setCurrentEmail === 'function') {
+          this.client.setCurrentEmail(this.currentEmail);
+        }
+
+        if (!this.emails.includes(this.currentEmail)) {
+          this.emails.push(this.currentEmail);
+        }
+
+        return {
+          success: true,
+          email: this.currentEmail,
+          message: `Email tạm đã được tạo: ${this.currentEmail}`
+        };
+      }
+
+      return {
+        success: false,
+        error: result.error || 'Không thể tạo email'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Fetch messages cho TempMailAPI
+   */
+  async fetchMessagesTempMailApi() {
+    try {
+      if (!this.currentEmail) {
+        return { success: true, messages: [], count: 0 };
+      }
+
+      const result = await this.client.fetchMessages();
+      return result;
+    } catch (error) {
+      console.error('[TempMail] Error fetching TempMailAPI messages:', error.message);
+      return {
+        success: false,
+        error: error.message,
+        messages: [],
+        count: 0
+      };
+    }
+  }
+
+  /**
+   * Tạo email cho Inboxes.com
+   */
+  async createEmailInboxes(username, selectedDomain) {
+    try {
+      const result = await this.client.createEmail(username, selectedDomain);
+
+      if (result.success) {
+        this.currentEmail = result.email;
+
+        if (this.client && typeof this.client.setCurrentEmail === 'function') {
+          this.client.setCurrentEmail(this.currentEmail);
+        }
+
+        if (!this.emails.includes(this.currentEmail)) {
+          this.emails.push(this.currentEmail);
+        }
+
+        return {
+          success: true,
+          email: this.currentEmail,
+          message: `Email tạm đã được tạo: ${this.currentEmail}`
+        };
+      }
+
+      return {
+        success: false,
+        error: result.error || 'Không thể tạo email'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Fetch messages cho Inboxes.com
+   */
+  async fetchMessagesInboxes() {
+    try {
+      if (!this.currentEmail) {
+        return { success: true, messages: [], count: 0 };
+      }
+
+      const result = await this.client.fetchMessages();
+      return result;
+    } catch (error) {
+      console.error('[TempMail] Error fetching Inboxes messages:', error.message);
       return {
         success: false,
         error: error.message,
@@ -2522,6 +2881,29 @@ export class TempMail {
       }
     }
 
+    // Tất cả nguồn khác không có API delete: tự tạo email random mới
+    if (this.sourceId !== 'tmail') {
+      try {
+        const deletedEmail = this.currentEmail;
+        const result = await this.createRandomEmail();
+        if (result.success) {
+          this.emails = this.emails.filter(e => e !== deletedEmail);
+          return {
+            success: true,
+            message: 'Email đã được xóa và tạo email mới',
+            newEmail: this.currentEmail,
+            email: this.currentEmail,
+            secretKey: result.secretKey || null,
+            token: result.token || null,
+            password: result.password || null
+          };
+        }
+        return { success: false, error: result.error || 'Không thể tạo email mới' };
+      } catch (error) {
+        return { success: false, error: error.message };
+      }
+    }
+
     // TMail: Dùng logic getSnapshot và sendRequest
     const snapshot = this.client.getSnapshot(
       'frontend.actions',
@@ -2681,4 +3063,3 @@ export class TempMail {
     return this.emails;
   }
 }
-

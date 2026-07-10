@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TempMail Public API (5 endpoints)</title>
+  <style>
+    :root{
+      --bg0:#070a13;
+      --bg1:#0b1022;
+      --card: rgba(255,255,255,.06);
+      --border: rgba(255,255,255,.10);
+      --text:#e5e7eb;
+      --muted:#a7b0c0;
+      --accent:#60a5fa;
+      --accent2:#a78bfa;
+      --codebg: rgba(2,6,23,.75);
+      --shadow: 0 16px 60px rgba(0,0,0,.45);
+      --radius: 16px;
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 10% 5%, rgba(96,165,250,.20), transparent 55%),
+        radial-gradient(900px 600px at 85% 12%, rgba(167,139,250,.18), transparent 52%),
+        radial-gradient(700px 500px at 60% 85%, rgba(34,211,238,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      padding: 28px 16px 44px;
+    }
+    .wrap{ max-width: 1020px; margin: 0 auto; }
+    .top{
+      display:flex; gap:14px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+      margin-bottom: 14px;
+    }
+    h1{ margin:0; font-size: 28px; letter-spacing: .2px; }
+    .subtitle{
+      margin:8px 0 0;
+      color:var(--muted);
+      line-height:1.55;
+      max-width: 72ch;
+    }
+    .pillrow{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:10px; }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      padding: 7px 10px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+    .pill b{ color: var(--text); font-weight: 700; }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+    @media (min-width: 980px){
+      .grid{ grid-template-columns: 1fr 1fr; }
+    }
+    .card{
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      backdrop-filter: blur(10px);
+    }
+    .card h2{
+      margin: 0 0 8px;
+      font-size: 16px;
+      line-height: 1.35;
+      letter-spacing: .2px;
+    }
+    .card h2 code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-weight: 700;
+      color: #eaf2ff;
+      background: rgba(96,165,250,.12);
+      border: 1px solid rgba(96,165,250,.18);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .desc{ color: var(--muted); margin: 0 0 10px; line-height: 1.6; }
+    pre{
+      margin:0;
+      background: var(--codebg);
+      border: 1px solid rgba(148,163,184,.18);
+      border-radius: 14px;
+      padding: 12px;
+      overflow:auto;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      line-height: 1.55;
+      white-space: pre;
+      color:#e8eefc;
+    }
+    .toc{
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+    }
+    .toc b{ color: var(--text); }
+    .toc ul{ margin: 8px 0 0; padding-left: 18px; color: var(--muted); line-height: 1.7; }
+    a{ color: var(--accent); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    .controls{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;
+      margin-top: 12px;
+    }
+    .field{
+      display:flex; flex-direction:column; gap:6px;
+      min-width: 190px;
+    }
+    label{ font-size: 12.5px; color: var(--muted); }
+    input, select{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 12px;
+      padding: 10px 12px;
+      color: var(--text);
+      outline: none;
+    }
+    input:focus, select:focus{
+      border-color: rgba(96,165,250,.55);
+      box-shadow: 0 0 0 3px rgba(96,165,250,.15);
+    }
+    .btn{
+      appearance:none;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(96,165,250,.16);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight: 700;
+    }
+    .btn.secondary{ background: rgba(255,255,255,.06); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+    .status{
+      margin-top: 10px;
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .kv{
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      border-radius: 999px;
+      padding: 6px 10px;
+    }
+    .split{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+    @media (min-width: 980px){
+      .split{ grid-template-columns: 1.1fr .9fr; }
+    }
+    .list{
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .msg{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      border-radius: 14px;
+      padding: 10px 10px;
+      cursor:pointer;
+    }
+    .msg:hover{ border-color: rgba(96,165,250,.35); }
+    .msg .subline{ color: var(--muted); font-size: 12.5px; margin-top: 4px; }
+    .muted{ color: var(--muted); }
+  </style>
+  <meta name="robots" content="noindex" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>TempMail Public API (5 endpoints)</h1>
+        <p class="subtitle">
+          Không cần API key. Mỗi user dùng <b>X-Session-ID</b> để tách hộp thư. Các endpoint public dùng namespace <code>/api-public</code>.
+        </p>
+        <p class="subtitle" style="margin-top: 6px;">
+          <b>X-Session-ID là do client tự tạo</b> (thường generate 1 lần rồi lưu <code>localStorage</code>). Ở trang test này, nếu bạn để trống thì nó sẽ tự sinh một ID và điền vào ô đó.
+        </p>
+        <div class="pillrow">
+          <span class="pill"><b>Base URL</b> <span>→</span> <span><code>YOUR_ORIGIN</code></span></span>
+          <span class="pill"><b>Header</b> <span>→</span> <span><code>X-Session-ID</code></span></span>
+        </div>
+
+        <div class="controls">
+          <div class="field" style="min-width: 240px;">
+            <label for="sessionId">X-Session-ID (optional)</label>
+            <input id="sessionId" placeholder="(không cần nhập) server sẽ tự generate" autocomplete="off" />
+          </div>
+          <div class="field" style="min-width: 220px;">
+            <label for="sourceId">Source</label>
+            <select id="sourceId">
+              <option value="" selected>— load sources —</option>
+            </select>
+          </div>
+          <button class="btn secondary" id="btnSources">Load sources</button>
+          <button class="btn" id="btnDomains">Load domains</button>
+        </div>
+
+        <div class="controls">
+          <div class="field" style="min-width: 240px;">
+            <label for="username">Username</label>
+            <input id="username" placeholder="vd: myemail123" autocomplete="off" />
+          </div>
+          <div class="field" style="min-width: 260px;">
+            <label for="domain">Domain</label>
+            <select id="domain">
+              <option value="" selected>— load domains trước —</option>
+            </select>
+          </div>
+          <button class="btn" id="btnCreate">Create email</button>
+          <button class="btn secondary" id="btnMessages">Refresh messages</button>
+        </div>
+
+        <div class="status">
+          <span class="kv">Origin: <b id="originLabel"></b></span>
+          <span class="kv">Current email: <b id="currentEmail">—</b></span>
+          <span class="kv">Messages: <b id="msgCount">0</b></span>
+          <span class="kv">Status: <b id="statusText">Ready</b></span>
+        </div>
+      </div>
+      <div class="toc">
+        <b>Mục lục</b>
+        <ul>
+          <li><a href="#sources">GET /api-public/sources</a></li>
+          <li><a href="#domains">GET /api-public/domains?sourceId=...</a></li>
+          <li><a href="#create">POST /api-public/email/create</a></li>
+          <li><a href="#messages">GET /api-public/messages</a></li>
+          <li><a href="#message-detail">GET /api-public/message/:messageId</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="split">
+      <section class="card" id="client">
+        <h2>Mini client (test 5 API)</h2>
+        <p class="desc">
+          Flow gợi ý: <b>Load sources → Load domains (theo source) → Create email → Refresh messages → Click message để xem detail</b>.
+        </p>
+        <div class="list" id="messagesList">
+          <div class="muted">Chưa có message. Hãy tạo email và refresh.</div>
+        </div>
+      </section>
+
+      <section class="card" id="detail">
+        <h2>Message detail</h2>
+        <p class="desc">Click một message ở bên trái để gọi <code>GET /api-public/message/:messageId</code>.</p>
+        <pre><code id="detailJson">{}</code></pre>
+      </section>
+    </div>
+
+    <div class="grid">
+      <section class="card" id="sources">
+        <h2>1) <code>GET /api-public/sources</code></h2>
+        <p class="desc">Lấy tất cả nguồn mail (sources) đang có.</p>
+        <pre><code>Request
+GET YOUR_ORIGIN/api-public/sources
+
+Headers:
+{
+  "Content-Type": "application/json"
+}
+
+Response (sample):
+{
+  "success": true,
+  "sources": [
+    { "id": "noopmail", "name": "NoopMail (noopmail.org)" }
+  ],
+  "current": { "id": "tmail" }
+}</code></pre>
+      </section>
+
+      <section class="card" id="domains">
+        <h2>2) <code>GET /api-public/domains?sourceId=...</code></h2>
+        <p class="desc">Lấy danh sách domain hỗ trợ cho source bạn chọn.</p>
+        <pre><code>Request
+GET YOUR_ORIGIN/api-public/domains?sourceId=noopmail
+
+Headers:
+{
+  "Content-Type": "application/json"
+}
+
+Response (sample):
+{
+  "success": true,
+  "source": { "id": "noopmail" },
+  "domains": ["mmocommunity.io.vn", "ramcloud.us"]
+}</code></pre>
+      </section>
+
+      <section class="card" id="create">
+        <h2>3) <code>POST /api-public/email/create</code></h2>
+        <p class="desc">Tạo email tạm theo username + domain (tùy provider). Sau khi create, session sẽ có “current email”.</p>
+        <pre><code>Request
+POST YOUR_ORIGIN/api-public/email/create
+
+Headers:
+{
+  "Content-Type": "application/json",
+  "X-Session-ID": "optional"
+}
+
+Payload:
+{
+  "sourceId": "noopmail",
+  "username": "myemail123",
+  "domain": "mmocommunity.io.vn"
+}
+
+Response (sample):
+{
+  "success": true,
+  "email": "myemail123@mmocommunity.io.vn",
+  "domain": "mmocommunity.io.vn"
+}</code></pre>
+      </section>
+
+      <section class="card" id="messages">
+        <h2>4) <code>GET /api-public/messages</code></h2>
+        <p class="desc">Lấy danh sách thư trong inbox của email hiện tại trong session.</p>
+        <pre><code>Request
+GET YOUR_ORIGIN/api-public/messages
+
+Headers:
+{
+  "Content-Type": "application/json",
+  "X-Session-ID": "optional"
+}
+
+Response (sample):
+{
+  "success": true,
+  "count": 2,
+  "messages": [
+    {
+      "id": 21025,
+      "subject": "Your login code",
+      "sender_name": "VEED",
+      "sender_email": "noreply@login.veed.io"
+    }
+  ]
+}</code></pre>
+      </section>
+
+      <section class="card" id="message-detail">
+        <h2>5) <code>GET /api-public/message/:messageId</code></h2>
+        <p class="desc">Lấy chi tiết nội dung một message theo <code>messageId</code>.</p>
+        <pre><code>Request
+GET YOUR_ORIGIN/api-public/message/21025
+
+Headers:
+{
+  "Content-Type": "application/json",
+  "X-Session-ID": "optional"
+}
+
+Response (sample):
+{
+  "success": true,
+  "message": {
+    "subject": "Your login code",
+    "from": "noreply@login.veed.io",
+    "content": "&lt;html&gt;...&lt;/html&gt;"
+  }
+}</code></pre>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var origin = window.location.origin || '';
+      var originLabel = document.getElementById('originLabel');
+      if (originLabel) originLabel.textContent = origin;
+
+      // Tự thay YOUR_ORIGIN trong docs theo đúng domain đang mở
+      var blocks = document.querySelectorAll('pre code');
+      blocks.forEach(function (el) {
+        if (!el || !el.textContent) return;
+        el.textContent = el.textContent.replace(/YOUR_ORIGIN/g, origin);
+      });
+
+      function qs(id) { return document.getElementById(id); }
+      var lastSessionId = '';
+      function getSessionId() {
+        // Nếu user nhập thì ưu tiên dùng.
+        // Nếu user không nhập: để server auto-generate, nhưng nếu đã từng nhận X-Session-ID
+        // từ response header thì tái sử dụng để giữ cùng 1 inbox.
+        var manual = (qs('sessionId').value || '').trim();
+        if (manual) return manual;
+        return lastSessionId || '';
+      }
+      function setStatus(text) { qs('statusText').textContent = text; }
+      function setCurrentEmail(email) { qs('currentEmail').textContent = email || '—'; }
+      function setMsgCount(n) { qs('msgCount').textContent = String(n || 0); }
+
+      async function api(method, path, body) {
+        var headers = { 'Content-Type': 'application/json' };
+        var sid = getSessionId();
+        if (sid) headers['X-Session-ID'] = sid;
+        var opts = { method: method, headers: headers };
+        if (body !== undefined) opts.body = JSON.stringify(body);
+        var res = await fetch(origin + path, opts);
+        // Server có thể auto-generate X-Session-ID và trả lại qua response header
+        var echoed = res.headers.get('X-Session-ID') || '';
+        if (echoed) {
+          lastSessionId = echoed;
+          if (!((qs('sessionId').value || '').trim())) {
+            qs('sessionId').value = echoed; // hiển thị để user thấy session đang dùng
+          }
+        }
+        var data;
+        try { data = await res.json(); } catch (e) { data = { success: false, error: 'Invalid JSON response' }; }
+        if (!res.ok && (data && typeof data === 'object')) {
+          data.httpStatus = res.status;
+        }
+        return data;
+      }
+
+      function renderDomains(domains) {
+        var select = qs('domain');
+        select.innerHTML = '';
+        if (!domains || domains.length === 0) {
+          var opt = document.createElement('option');
+          opt.value = '';
+          opt.textContent = '— no domains —';
+          select.appendChild(opt);
+          return;
+        }
+        domains.forEach(function (d, idx) {
+          var opt = document.createElement('option');
+          opt.value = d;
+          opt.textContent = d;
+          if (idx === 0) opt.selected = true;
+          select.appendChild(opt);
+        });
+      }
+
+      function escapeHtml(s) {
+        return String(s || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function renderMessages(messages) {
+        var box = qs('messagesList');
+        box.innerHTML = '';
+        if (!messages || messages.length === 0) {
+          var empty = document.createElement('div');
+          empty.className = 'muted';
+          empty.textContent = 'Chưa có message.';
+          box.appendChild(empty);
+          return;
+        }
+
+        messages.forEach(function (m) {
+          var id = m.id || m.m_id;
+          var item = document.createElement('div');
+          item.className = 'msg';
+          item.dataset.messageId = String(id);
+          item.innerHTML =
+            '<div><b>#' + escapeHtml(id) + '</b> ' + escapeHtml(m.subject || '(no subject)') + '</div>' +
+            '<div class="subline">' + escapeHtml(m.sender_name || m.sender_email || '') + '</div>';
+          item.addEventListener('click', async function () {
+            setStatus('Loading message detail…');
+            var detail = await api('GET', '/api-public/message/' + encodeURIComponent(String(id)));
+            qs('detailJson').textContent = JSON.stringify(detail, null, 2);
+            setStatus(detail && detail.success ? 'OK' : ('Error: ' + (detail.error || 'unknown')));
+          });
+          box.appendChild(item);
+        });
+      }
+
+      function renderSources(sources, currentId) {
+        var select = qs('sourceId');
+        select.innerHTML = '';
+        if (!sources || sources.length === 0) {
+          var opt = document.createElement('option');
+          opt.value = '';
+          opt.textContent = '— no sources —';
+          select.appendChild(opt);
+          return;
+        }
+        sources.forEach(function (s) {
+          var opt = document.createElement('option');
+          opt.value = s.id;
+          opt.textContent = s.id;
+          if ((currentId && s.id === currentId) || s.isCurrent) opt.selected = true;
+          select.appendChild(opt);
+        });
+      }
+
+      qs('btnSources').addEventListener('click', async function () {
+        setStatus('Loading sources…');
+        var result = await api('GET', '/api-public/sources');
+        if (result && result.success) {
+          renderSources(result.sources || [], result.current && result.current.id);
+          setStatus('OK');
+        } else {
+          setStatus('Error: ' + (result.error || 'unknown'));
+        }
+      });
+
+      qs('btnDomains').addEventListener('click', async function () {
+        setStatus('Loading domains…');
+        var sourceId = qs('sourceId').value || '';
+        var url = '/api-public/domains' + (sourceId ? ('?sourceId=' + encodeURIComponent(sourceId)) : '');
+        var result = await api('GET', url);
+        if (result && result.success) {
+          renderDomains(result.domains || []);
+          setStatus('OK');
+        } else {
+          setStatus('Error: ' + (result.error || 'unknown'));
+        }
+      });
+
+      qs('btnCreate').addEventListener('click', async function () {
+        setStatus('Creating email…');
+        var sourceId = qs('sourceId').value || '';
+        var username = (qs('username').value || '').trim();
+        var domain = qs('domain').value || '';
+        var payload = { sourceId: sourceId, username: username, domain: domain };
+        var result = await api('POST', '/api-public/email/create', payload);
+        if (result && result.success) {
+          setCurrentEmail(result.email);
+          setStatus('OK');
+          // Auto refresh messages
+          await qs('btnMessages').click();
+        } else {
+          setStatus('Error: ' + (result.error || 'unknown'));
+        }
+      });
+
+      qs('btnMessages').addEventListener('click', async function () {
+        setStatus('Fetching messages…');
+        var result = await api('GET', '/api-public/messages');
+        if (result && result.success) {
+          setMsgCount(result.count || (result.messages ? result.messages.length : 0));
+          renderMessages(result.messages || []);
+          setStatus('OK');
+        } else {
+          setMsgCount(0);
+          renderMessages([]);
+          setStatus('Error: ' + (result.error || 'unknown'));
+        }
+      });
+
+      // Không auto-generate ở client nữa: để server làm nếu user để trống.
+      // Auto load sources once on open for convenience
+      try { qs('btnSources').click(); } catch (e) { }
+    })();
+  </script>
+</body>
+</html>
+

@@ -72,7 +72,11 @@ export async function getAdminConfigFromDB() {
                 pmail: true,
                 etempmail: true,
                 tinyhost: true,
-                edumail: true
+                edumail: true,
+                generatoremail: true,
+                moakt: true,
+                tempmailapi: true,
+                inboxes: true
             },
             adminPassword: 'admin123'
         };
@@ -112,4 +116,61 @@ export async function saveAdminConfigToDB(config) {
 // Check if database is available
 export function isDatabaseAvailable() {
     return pool !== null;
+}
+
+// ===== SITE STATS (persistent) =====
+
+// Get site stats from database
+export async function getSiteStats() {
+    if (!pool) return { totalEmailsCreated: 0, totalMessagesReceived: 0 };
+
+    try {
+        const result = await pool.query(
+            'SELECT value FROM admin_config WHERE key = $1',
+            ['site_stats']
+        );
+
+        if (result.rows.length > 0) {
+            return result.rows[0].value;
+        }
+
+        // Create default
+        const defaults = { totalEmailsCreated: 0, totalMessagesReceived: 0 };
+        await pool.query(
+            `INSERT INTO admin_config (key, value) VALUES ($1, $2)
+             ON CONFLICT (key) DO NOTHING`,
+            ['site_stats', JSON.stringify(defaults)]
+        );
+        return defaults;
+    } catch (error) {
+        console.error('[Database] Failed to get site stats:', error.message);
+        return { totalEmailsCreated: 0, totalMessagesReceived: 0 };
+    }
+}
+
+// Increment a site stat field by amount
+export async function incrementSiteStat(field, amount = 1) {
+    if (!pool) return false;
+
+    try {
+        // Ensure row exists
+        await pool.query(
+            `INSERT INTO admin_config (key, value) VALUES ($1, $2)
+             ON CONFLICT (key) DO NOTHING`,
+            ['site_stats', JSON.stringify({ totalEmailsCreated: 0, totalMessagesReceived: 0 })]
+        );
+
+        // Atomic increment using jsonb
+        await pool.query(
+            `UPDATE admin_config 
+             SET value = jsonb_set(value, $1::text[], (COALESCE((value->>$2)::int, 0) + $3)::text::jsonb),
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE key = 'site_stats'`,
+            ['{' + field + '}', field, amount]
+        );
+        return true;
+    } catch (error) {
+        console.error('[Database] Failed to increment stat:', error.message);
+        return false;
+    }
 }

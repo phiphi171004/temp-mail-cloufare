@@ -373,6 +373,20 @@
                     </div>
                 </div>
 
+                <!-- Announcement Editor -->
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-bullhorn"></i> Thông báo hiển thị
+                    </div>
+                    <div style="margin-top:12px;">
+                        <textarea id="announcementText" rows="4" style="width:100%; padding:12px; border-radius:8px; border:1px solid #e0e0e0; font-size:14px;" placeholder="Nhập nội dung thông báo (HTML hỗ trợ)" ></textarea>
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <button class="btn btn-primary" onclick="saveAnnouncement()"><i class="fas fa-save"></i> Lưu thông báo</button>
+                            <button class="btn btn-secondary" onclick="loadAnnouncement()"><i class="fas fa-sync"></i> Tải lại</button>
+                        </div>
+                    </div>
+                </div>
+
                 <button class="btn btn-logout" onclick="logout()">
                     <i class="fas fa-sign-out-alt"></i> Đăng xuất
                 </button>

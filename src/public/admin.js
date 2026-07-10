@@ -166,6 +166,12 @@ function getSourceName(sourceId) {
         'mailio': 'Mail.io',
         'pmail': 'PMail (IMAP)',
         'etempmail': 'eTempMail',
+        'tinyhost': 'TinyHost',
+        'edumail': 'EduMail',
+        'apple': 'Apple.edu',
+        'generatoremail': 'Generator.email',
+        'moakt': 'Moakt.com',
+        'tempmailapi': 'TempMailAPI',
         'livewire': 'Livewire'
     };
     return names[sourceId] || sourceId;
@@ -222,6 +228,7 @@ async function setDefaultSource() {
     }
 }
 
+
 // Show alert
 function showAlert(elementId, message, type) {
     const alert = document.getElementById(elementId);
@@ -239,3 +246,43 @@ document.getElementById('password')?.addEventListener('keypress', (e) => {
         login();
     }
 });
+
+// Announcement: load current announcement into textarea (admin panel)
+async function loadAnnouncement() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/announcement`);
+        const result = await response.json();
+        if (result.success) {
+            document.getElementById('announcementText').value = result.announcement || '';
+        } else {
+            showAlert('adminAlert', 'Không thể tải thông báo', 'error');
+        }
+    } catch (error) {
+        showAlert('adminAlert', 'Lỗi: ' + error.message, 'error');
+    }
+}
+
+// Announcement: save announcement from textarea
+async function saveAnnouncement() {
+    const announcement = document.getElementById('announcementText').value || '';
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/announcement`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ announcement })
+        });
+        const result = await response.json();
+        if (result.success) {
+            showAlert('adminAlert', 'Lưu thông báo thành công', 'success');
+        } else {
+            showAlert('adminAlert', result.error || 'Lỗi khi lưu', 'error');
+        }
+    } catch (error) {
+        showAlert('adminAlert', 'Lỗi: ' + error.message, 'error');
+    }
+}
+
+// Load announcement on admin panel open
+if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+    loadAnnouncement();
+}

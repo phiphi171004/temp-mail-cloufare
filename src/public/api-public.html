@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TempMail Public API (No API Key)</title>
+  <style>
+    :root {
+      --bg0: #0b1220;
+      --bg1: rgba(15, 23, 42, 0.92);
+      --border: rgba(255, 255, 255, 0.10);
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --primary: #6366f1;
+      --primary2: #8b5cf6;
+      --code-bg: rgba(2, 6, 23, 0.65);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+      padding: 28px 16px;
+      color: var(--text);
+      min-height: 100vh;
+      background: radial-gradient(900px 500px at 20% 0%, rgba(99, 102, 241, 0.35), transparent 60%),
+        radial-gradient(700px 400px at 80% 20%, rgba(139, 92, 246, 0.25), transparent 55%),
+        linear-gradient(180deg, #070b14, var(--bg0));
+    }
+
+    .wrap {
+      max-width: 1060px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 10px 0;
+      font-size: 30px;
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      margin: 8px 0 0 0;
+      line-height: 1.65;
+      color: #cbd5e1;
+    }
+
+    code,
+    pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.20), rgba(139, 92, 246, 0.14));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 18px 18px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background: var(--bg1);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      margin-top: 16px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      color: #a5b4fc;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    @media (min-width: 900px) {
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      padding: 14px;
+      border-radius: 14px;
+      overflow-x: auto;
+      max-width: 100%;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.55;
+      margin: 10px 0 0 0;
+    }
+
+    pre code {
+      display: block;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    code {
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    .small-title {
+      font-weight: 900;
+      margin: 0 0 8px 0;
+      color: #dbeafe;
+      letter-spacing: -0.01em;
+    }
+
+    .endpoint-title {
+      font-weight: 1000;
+      font-size: 18px;
+      margin: 0 0 10px 0;
+      color: #dbeafe;
+      letter-spacing: -0.02em;
+    }
+
+    .sub {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .list {
+      margin: 10px 0 0 0;
+      padding-left: 18px;
+      color: #cbd5e1;
+      line-height: 1.7;
+    }
+
+    li {
+      margin: 6px 0;
+    }
+
+    a {
+      color: #93c5fd;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 18px 12px;
+      }
+      h1 {
+        font-size: 24px;
+      }
+      .card {
+        padding: 14px;
+      }
+      .hero {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <h1>TempMail Public API</h1>
+    <p>
+      Không cần API key. Hệ thống dùng <b>X-Session-ID</b> để tách phiên người dùng.
+      Bạn chỉ cần gọi HTTP API và gửi header <code>X-Session-ID</code>.
+    </p>
+
+    <div class="hero">
+      <div class="row" style="margin-bottom: 8px;">
+        <span class="pill">Public API</span>
+        <span class="muted">Không cần API key.</span>
+      </div>
+      <div class="sub">
+        Mỗi user nên dùng <code>X-Session-ID</code> riêng để tách hộp thư. Nếu không gửi, hệ thống sẽ dùng session mặc định <code>default</code>.
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="small-title">Quick start</p>
+      <div class="grid">
+        <div>
+          <p class="endpoint-title" id="quick-1">1) Get sources</p>
+          <pre><code>Request
+GET YOUR_ORIGIN/api-public/sources
+
+Headers:
+{
+  "Content-Type": "application/json"
+}
+
+Response (sample):
+{
+  "success": true,
+  "sources": [
+    { "id": "noopmail", "name": "NoopMail (noopmail.org)" }
+  ],
+  "current": { "id": "tmail" }
+}</code></pre>
+        </div>
+        <div>
+          <p class="endpoint-title" id="quick-2">2) Domains (by source) + create + messages</p>
+          <pre><code>Request A (lấy domains theo source)
+GET YOUR_ORIGIN/api-public/domains?sourceId=noopmail
+
+Headers:
+{
+  "Content-Type": "application/json"
+}
+
+Response (sample)
+{
+  "success": true,
+  "source": { "id": "noopmail" },
+  "domains": ["mmocommunity.io.vn", "ramcloud.us"],
+}
+
+Request B (tạo email)
+POST YOUR_ORIGIN/api-public/email/create
+
+Headers:
+{
+  "Content-Type": "application/json"
+}
+
+Payload:
+{
+  "sourceId": "noopmail",
+  "username": "myemail123",
+  "domain": "mmocommunity.io.vn"
+}
+
+Response (sample)
+{
+  "success": true,
+  "email": "myemail123@mmocommunity.io.vn",
+  "domain": "mmocommunity.io.vn"
+}
+
+Request C (lấy danh sách thư)
+GET YOUR_ORIGIN/api-public/messages
+
+Headers:
+{
+  "Content-Type": "application/json"
+}
+
+Response (sample)
+{
+  "success": true,
+  "count": 2,
+  "messages": [
+    { "id": 21025, "subject": "Your login code", "sender_name": "VEED" }
+  ]
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 16px;">
+      <p class="small-title">Mục lục (theo số thứ tự)</p>
+      <ul class="list" style="margin-top: 6px;">
+        <li><a href="#api-sources">1. GET /api-public/sources</a></li>
+        <li><a href="#api-domains">2. GET /api-public/domains?sourceId=...</a></li>
+        <li><a href="#api-email-create">3. POST /api-public/email/create</a></li>
+        <li><a href="#api-messages">4. GET /api-public/messages</a></li>
+        <li><a href="#api-message-detail">5. GET /api-public/message/:messageId</a></li>
+      </ul>
+      <div class="sub" style="margin-top: 10px;">
+        User chỉ cần dùng 5 endpoint public này. Khuyến nghị: gọi domains với <code>sourceId</code> bạn muốn trước khi create email.
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="endpoint-title" id="api-sources">1) GET <code>/api-public/sources</code></p>
+      <p class="sub">Lấy tất cả nguồn mail (sources) đang có.</p>
+      <pre><code>Request
+GET YOUR_ORIGIN/api-public/sources
+
+Headers:
+{
+  "Content-Type": "application/json"
+}
+
+Response (sample):
+{
+  "success": true,
+  "sources": [
+    { "id": "noopmail", "name": "NoopMail (noopmail.org)", "isCurrent": false },
+    { "id": "tmail", "name": "TempMail (mmocommunity.io.vn)", "isCurrent": true }
+  ],
+  "current": { "id": "tmail" }
+}</code></pre>
+    </div>
+
+    <div class="card">
+      <p class="endpoint-title" id="api-domains">2) GET <code>/api-public/domains?sourceId=...</code></p>
+      <p class="sub">Lấy danh sách domain hỗ trợ cho source bạn chọn.</p>
+      <pre><code>Request
+GET YOUR_ORIGIN/api-public/domains?sourceId=noopmail
+
+Headers:
+{
+  "Content-Type": "application/json"
+}
+
+Response (sample):
+{
+  "success": true,
+  "source": { "id": "noopmail" },
+  "domains": ["mmocommunity.io.vn", "ramcloud.us"]
+}</code></pre>
+    </div>
+
+    <div class="card">
+      <p class="endpoint-title" id="api-email-create">3) POST <code>/api-public/email/create</code></p>
+      <p class="sub">Tạo email tạm theo username + domain (tùy provider).</p>
+      <pre><code>Request
+POST YOUR_ORIGIN/api-public/email/create
+
+Headers:
+{
+  "Content-Type": "application/json"
+}
+
+Payload:
+{
+  "sourceId": "noopmail",
+  "username": "myemail123",
+  "domain": "mmocommunity.io.vn"
+}
+
+Response (sample):
+{
+  "success": true,
+  "email": "myemail123@mmocommunity.io.vn",
+  "domain": "mmocommunity.io.vn"
+}</code></pre>
+      <div class="sub">Provider như <code>etempmail</code> có thể cho phép username null (random) nhưng tùy từng nguồn.</div>
+    </div>
+
+    <div class="card">
+      <p class="endpoint-title" id="api-messages">4) GET <code>/api-public/messages</code></p>
+      <p class="sub">Lấy danh sách thư trong hộp thư của email hiện tại.</p>
+      <pre><code>Request
+GET YOUR_ORIGIN/api-public/messages
+
+Headers:
+{
+  "Content-Type": "application/json"
+}
+
+Response (sample):
+{
+  "success": true,
+  "count": 2,
+  "messages": [
+    {
+      "id": 21025,
+      "subject": "Your login code",
+      "sender_name": "VEED",
+      "sender_email": "noreply@login.veed.io"
+    }
+  ]
+}</code></pre>
+    </div>
+
+    <div class="card">
+      <p class="endpoint-title" id="api-message-detail">5) GET <code>/api-public/message/:messageId</code></p>
+      <p class="sub">Lấy chi tiết nội dung thư.</p>
+      <pre><code>Request
+GET YOUR_ORIGIN/api-public/message/21025
+
+Headers:
+{
+  "Content-Type": "application/json"
+}
+
+Response (sample):
+{
+  "success": true,
+  "message": {
+    "subject": "Your login code",
+    "from": "noreply@login.veed.io",
+    "content": "&lt;html&gt;...&lt;/html&gt;"
+  }
+}</code></pre>
+    </div>
+  </div>
+  <script>
+    // Tự thay YOUR_ORIGIN theo đúng domain đang mở (local hoặc deploy)
+    (function () {
+      var origin = window.location.origin || '';
+      var blocks = document.querySelectorAll('pre code');
+      blocks.forEach(function (el) {
+        if (!el || !el.textContent) return;
+        el.textContent = el.textContent.replace(/YOUR_ORIGIN/g, origin);
+      });
+    })();
+  </script>
+</body>
+
+</html>
+

@@ -4,6 +4,13 @@ import * as cheerio from 'cheerio';
 /**
  * NoopMail Client
  * Client kết nối với noopmail.org
+ *
+ * API (cập nhật theo capture 2026):
+ * - GET  /api/d          → list domains (thường trả [] — đã deprecate)
+ * - GET  /api/rd         → random domain { dm, exp, kept }
+ * - GET  /api/rd?cur=x   → random domain (đổi domain, tránh cur nếu có)
+ * - POST /api/c          → check inbox { e: username, d: domain }
+ * - GET  /api/i/{id}     → message detail (html/text/...)
  */
 export class NoopMailClient {
   constructor() {
@@ -11,6 +18,7 @@ export class NoopMailClient {
     this.domains = [];
     this.currentEmail = null;
     this.currentDomain = null;
+    this.domainExpiry = null;
     this.cookies = {};
   }
 
@@ -41,7 +49,7 @@ export class NoopMailClient {
         });
       }
 
-      // Load domains
+      // Load domains (API mới: /api/rd)
       await this.loadDomains();
 
       return true;
@@ -52,29 +60,126 @@ export class NoopMailClient {
   }
 
   /**
+   * Headers JSON chuẩn cho API
+   */
+  getApiHeaders(referer = null) {
+    return {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+      'Accept': 'application/json, text/plain, */*',
+      'Cookie': this.getCookieString(),
+      'Origin': this.baseURL,
+      'Referer': referer || this.baseURL
+    };
+  }
+
+  /**
+   * Lấy 1 domain ngẫu nhiên từ /api/rd
+   * @param {string|null} currentDomain - domain hiện tại (truyền vào ?cur=)
+   * @returns {Promise<{domain: string|null, exp: string|null, kept: boolean}>}
+   */
+  async fetchRandomDomain(currentDomain = null) {
+    try {
+      const url = currentDomain
+        ? `${this.baseURL}/api/rd?cur=${encodeURIComponent(currentDomain)}`
+        : `${this.baseURL}/api/rd`;
+
+      const response = await axios.get(url, {
+        headers: this.getApiHeaders(),
+        timeout: 15000
+      });
+
+      // Response: { dm: "example.store", exp: "2027-...", kept: false }
+      if (response.data && response.data.dm) {
+        const dm = String(response.data.dm).trim();
+        if (!this.isValidDomain(dm)) {
+          return { domain: null, exp: null, kept: false };
+        }
+        return {
+          domain: dm.toLowerCase(),
+          exp: response.data.exp || null,
+          kept: !!response.data.kept
+        };
+      }
+
+      return { domain: null, exp: null, kept: false };
+    } catch (error) {
+      console.error('Lỗi fetch random domain NoopMail (/api/rd):', error.message);
+      return { domain: null, exp: null, kept: false };
+    }
+  }
+
+  /**
    * Load danh sách domains
+   * NoopMail đã bỏ list đầy đủ qua /api/d (trả []).
+   * Domain lấy qua /api/rd — gọi nhiều lần để có vài lựa chọn cho dropdown.
    */
   async loadDomains() {
     try {
-      const response = await axios.get(`${this.baseURL}/api/d`, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
-          'Accept': 'application/json, text/plain, */*',
-          'Cookie': this.getCookieString(),
-          'Origin': this.baseURL,
-          'Referer': this.baseURL
+      // 1) Thử API cũ /api/d (nếu họ bật lại list)
+      try {
+        const legacy = await axios.get(`${this.baseURL}/api/d`, {
+          headers: this.getApiHeaders(),
+          timeout: 10000
+        });
+        if (Array.isArray(legacy.data) && legacy.data.length > 0) {
+          this.domains = legacy.data
+            .map(d => (typeof d === 'string' ? d : d?.domain || d?.dm || d?.name))
+            .filter(Boolean);
+          if (this.domains.length > 0) {
+            if (!this.currentDomain || !this.domains.includes(this.currentDomain)) {
+              this.currentDomain = this.domains[0];
+            }
+            console.log(`[NoopMail] Loaded ${this.domains.length} domains from /api/d`);
+            return this.domains;
+          }
         }
-      });
-
-      if (response.data && Array.isArray(response.data)) {
-        this.domains = response.data;
-        if (this.domains.length > 0 && !this.currentDomain) {
-          this.currentDomain = this.domains[0];
-        }
-        return this.domains;
+      } catch (legacyErr) {
+        // ignore — dùng /api/rd
       }
 
-      return [];
+      // 2) API mới: /api/rd — lấy nhiều domain ngẫu nhiên cho dropdown
+      // Site gốc không còn list cố định; mỗi lần /api/rd trả 1 domain.
+      // Gọi xen kẽ có/không ?cur= + delay nhẹ để tránh trả cùng 1 domain.
+      const collected = new Set(this.domains);
+      const rounds = 10;
+      let lastDomain = this.currentDomain || null;
+
+      for (let i = 0; i < rounds; i++) {
+        // Xen kẽ: null | lastDomain | empty-cur style
+        let curArg = null;
+        if (i % 3 === 1 && lastDomain) {
+          curArg = lastDomain;
+        }
+
+        const result = await this.fetchRandomDomain(curArg);
+        if (result.domain) {
+          collected.add(result.domain);
+          lastDomain = result.domain;
+          if (!this.currentDomain) {
+            this.currentDomain = result.domain;
+            this.domainExpiry = result.exp;
+          }
+        }
+
+        // Delay nhỏ giữa các request (API có thể sticky nếu spam)
+        if (i < rounds - 1) {
+          await new Promise(r => setTimeout(r, 120 + Math.floor(Math.random() * 80)));
+        }
+      }
+
+      this.domains = [...collected];
+
+      if (this.domains.length === 0) {
+        console.warn('[NoopMail] Không lấy được domain nào từ /api/rd');
+        return [];
+      }
+
+      if (!this.currentDomain || !this.domains.includes(this.currentDomain)) {
+        this.currentDomain = this.domains[0];
+      }
+
+      console.log(`[NoopMail] Loaded ${this.domains.length} domains via /api/rd:`, this.domains.join(', '));
+      return this.domains;
     } catch (error) {
       console.error('Lỗi load domains NoopMail:', error.message);
       return [];
@@ -82,10 +187,100 @@ export class NoopMailClient {
   }
 
   /**
+   * Đổi sang domain ngẫu nhiên mới (giống UX site noopmail)
+   */
+  async changeDomain() {
+    const result = await this.fetchRandomDomain(this.currentDomain);
+    if (result.domain) {
+      this.currentDomain = result.domain;
+      this.domainExpiry = result.exp;
+      if (!this.domains.includes(result.domain)) {
+        this.domains.push(result.domain);
+      }
+      return {
+        success: true,
+        domain: result.domain,
+        exp: result.exp
+      };
+    }
+    return {
+      success: false,
+      error: 'Không lấy được domain mới'
+    };
+  }
+
+  /**
    * Lấy danh sách domains
    */
   getDomains() {
-    return this.domains;
+    return this.domains.filter(d => this.isValidDomain(d));
+  }
+
+  /**
+   * Domain hợp lệ (chặn null / "null" / rỗng — gây ra email user@null)
+   */
+  isValidDomain(domain) {
+    if (domain == null) return false;
+    const d = String(domain).trim();
+    if (!d) return false;
+    if (d === 'null' || d === 'undefined' || d === 'None') return false;
+    // domain tối thiểu: a.b
+    if (!d.includes('.') || d.length < 3) return false;
+    return true;
+  }
+
+  /**
+   * Chuẩn hóa domain từ input (string/null) → domain hợp lệ hoặc null
+   */
+  normalizeDomain(domain) {
+    if (!this.isValidDomain(domain)) return null;
+    return String(domain).trim().toLowerCase();
+  }
+
+  /**
+   * Đảm bảo có domain usable: current list → /api/rd
+   */
+  async ensureDomain(preferred = null) {
+    let domain = this.normalizeDomain(preferred);
+
+    if (!domain) {
+      domain = this.normalizeDomain(this.currentDomain);
+    }
+
+    if (!domain && this.domains.length > 0) {
+      const valid = this.domains.find(d => this.isValidDomain(d));
+      domain = this.normalizeDomain(valid);
+    }
+
+    if (!domain) {
+      // load lại / gọi random
+      if (this.domains.length === 0) {
+        await this.loadDomains();
+      }
+      domain = this.normalizeDomain(this.currentDomain)
+        || this.normalizeDomain(this.domains.find(d => this.isValidDomain(d)));
+    }
+
+    if (!domain) {
+      const rd = await this.fetchRandomDomain(
+        this.normalizeDomain(this.currentDomain)
+      );
+      domain = this.normalizeDomain(rd.domain);
+      if (domain) {
+        this.domainExpiry = rd.exp;
+      }
+    }
+
+    if (domain) {
+      this.currentDomain = domain;
+      if (!this.domains.includes(domain)) {
+        this.domains.push(domain);
+      }
+      // loại bỏ domain rác nếu lỡ cache
+      this.domains = this.domains.filter(d => this.isValidDomain(d));
+    }
+
+    return domain;
   }
 
   /**
@@ -104,20 +299,24 @@ export class NoopMailClient {
     try {
       // Generate random username (12 ký tự, lowercase)
       const username = this.generateRandomUsername(12);
-      
-      // Chọn domain random nếu chưa có
-      if (!this.currentDomain && this.domains.length > 0) {
-        this.currentDomain = this.domains[Math.floor(Math.random() * this.domains.length)];
+
+      const selectedDomain = await this.ensureDomain();
+      if (!selectedDomain) {
+        return {
+          success: false,
+          error: 'Không có domain khả dụng (NoopMail /api/rd)'
+        };
       }
 
-      const email = `${username}@${this.currentDomain}`;
+      const email = `${username}@${selectedDomain}`;
       this.currentEmail = email;
+      this.currentDomain = selectedDomain;
 
       return {
         success: true,
         email: email,
         username: username,
-        domain: this.currentDomain
+        domain: selectedDomain
       };
     } catch (error) {
       console.error('Lỗi tạo email random NoopMail:', error.message);
@@ -145,11 +344,8 @@ export class NoopMailClient {
         };
       }
 
-      // Chọn domain
-      const selectedDomain = domain && this.domains.includes(domain) 
-        ? domain 
-        : (this.currentDomain || (this.domains.length > 0 ? this.domains[0] : null));
-
+      // domain có thể là null / "null" / "" từ frontend — normalize trước
+      const selectedDomain = await this.ensureDomain(domain);
       if (!selectedDomain) {
         return {
           success: false,
@@ -210,13 +406,10 @@ export class NoopMailClient {
         },
         {
           headers: {
-            'Content-Type': 'application/json;charset=UTF-8',
-            'Accept': 'application/json, text/plain, */*',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
-            'Cookie': this.getCookieString(),
-            'Origin': this.baseURL,
-            'Referer': this.baseURL
-          }
+            ...this.getApiHeaders(),
+            'Content-Type': 'application/json;charset=UTF-8'
+          },
+          timeout: 20000
         }
       );
 
@@ -231,7 +424,7 @@ export class NoopMailClient {
         if (msg.from) {
           const fromMatch = msg.from.match(/^(.+?)\s*<(.+?)>$/);
           if (fromMatch) {
-            senderName = fromMatch[1].trim();
+            senderName = fromMatch[1].trim().replace(/^"|"$/g, '');
             senderEmail = fromMatch[2].trim();
           } else {
             senderEmail = msg.from.trim();
@@ -280,23 +473,18 @@ export class NoopMailClient {
       // Thử gọi API JSON trước: GET /api/i/{messageId}
       try {
         const jsonResponse = await axios.get(`${this.baseURL}/api/i/${messageId}`, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
-            'Accept': 'application/json, text/plain, */*',
-            'Cookie': this.getCookieString(),
-            'Origin': this.baseURL,
-            'Referer': `${this.baseURL}/detail/?i=${messageId}`
-          }
+          headers: this.getApiHeaders(`${this.baseURL}/detail/?i=${messageId}`),
+          timeout: 20000
         });
 
         // Nếu response là JSON object
         if (jsonResponse.data && typeof jsonResponse.data === 'object') {
           const data = jsonResponse.data;
-          
+
           // Ưu tiên HTML content, nếu không có thì dùng text
           const content = data.html || data.text || '';
           const contentRaw = data.html || data.text || '';
-          
+
           if (content) {
             return {
               success: true,
@@ -325,17 +513,18 @@ export class NoopMailClient {
           'Origin': this.baseURL,
           'Referer': this.baseURL
         },
-        responseType: 'text'
+        responseType: 'text',
+        timeout: 20000
       });
 
       if (htmlResponse.data && typeof htmlResponse.data === 'string') {
         // Parse HTML để lấy nội dung email từ iframe hoặc script
         const $ = cheerio.load(htmlResponse.data);
-        
+
         // Tìm iframe với id="ehtmc" và lấy srcdoc hoặc src
         const iframe = $('#ehtmc');
         let htmlContent = '';
-        
+
         if (iframe.length > 0) {
           const srcdoc = iframe.attr('srcdoc');
           if (srcdoc) {
@@ -373,19 +562,14 @@ export class NoopMailClient {
         if (!htmlContent) {
           try {
             const jsonResponse2 = await axios.get(`${this.baseURL}/api/i/${messageId}`, {
-              headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
-                'Accept': 'application/json, text/plain, */*',
-                'Cookie': this.getCookieString(),
-                'Origin': this.baseURL,
-                'Referer': `${this.baseURL}/detail/?i=${messageId}`
-              }
+              headers: this.getApiHeaders(`${this.baseURL}/detail/?i=${messageId}`),
+              timeout: 20000
             });
 
             if (jsonResponse2.data && typeof jsonResponse2.data === 'object') {
               const data = jsonResponse2.data;
               htmlContent = data.html || data.text || '';
-              
+
               return {
                 success: true,
                 content: htmlContent,
@@ -475,6 +659,9 @@ export class NoopMailClient {
     if (email && email.includes('@')) {
       const [, domain] = email.split('@');
       this.currentDomain = domain;
+      if (domain && !this.domains.includes(domain)) {
+        this.domains.push(domain);
+      }
     }
   }
 
@@ -493,4 +680,3 @@ export class NoopMailClient {
     return this.currentEmail ? [this.currentEmail] : [];
   }
 }
-

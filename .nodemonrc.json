@@ -1,0 +1,6 @@
+{
+    "ignore": [
+        "*player-script*",
+        "*.log"
+    ]
+}

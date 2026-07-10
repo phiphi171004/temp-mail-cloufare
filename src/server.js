@@ -6,6 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import crypto from 'crypto';
 import fs from 'fs';
+import { fetchVideoData, getSupportedPlatforms, handleYTSaveDownload } from './video-downloader.js';
 import { TempMail } from './tempmail.js';
 import { CONFIG } from './config.js';
 import {
@@ -13,17 +14,31 @@ import {
   createAdminConfigTable,
   getAdminConfigFromDB,
   saveAdminConfigToDB,
-  isDatabaseAvailable
+  isDatabaseAvailable,
+  getSiteStats,
+  incrementSiteStat
 } from './database.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+app.disable('x-powered-by');
 const PORT = process.env.PORT || 3000;
 
 // Track server start time for uptime
 const serverStartTime = Date.now();
+
+// Heartbeat tracking — mỗi user ping mỗi 5 giây, expire sau 15 giây
+const activeUsers = new Map(); // visitorId -> lastPingTime
+setInterval(() => {
+  const now = Date.now();
+  for (const [id, lastPing] of activeUsers) {
+    if (now - lastPing > 15000) { // 15 giây không ping = offline
+      activeUsers.delete(id);
+    }
+  }
+}, 10000); // Cleanup mỗi 10 giây
 
 // Middleware
 app.use(express.json());
@@ -33,6 +48,8 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, X-Session-ID');
+  // Cho phép frontend đọc response header X-Session-ID (khi server auto-generate)
+  res.header('Access-Control-Expose-Headers', 'X-Session-ID');
   res.header('Access-Control-Allow-Credentials', 'true');
 
   // Handle preflight requests
@@ -41,6 +58,24 @@ app.use((req, res, next) => {
   } else {
     next();
   }
+});
+
+// Auto-generate X-Session-ID nếu client không gửi
+// - Tránh dính chung session "default"
+// - Trả lại sessionId qua response header để client có thể lưu và tái sử dụng
+app.use((req, res, next) => {
+  const incoming = req.headers['x-session-id'];
+  if (!incoming) {
+    const generated = (crypto.randomUUID && typeof crypto.randomUUID === 'function')
+      ? crypto.randomUUID()
+      : crypto.randomBytes(16).toString('hex');
+    req.headers['x-session-id'] = generated;
+    res.setHeader('X-Session-ID', generated);
+  } else {
+    // Echo lại để client dễ debug / đồng bộ
+    res.setHeader('X-Session-ID', incoming);
+  }
+  next();
 });
 
 // ============================================
@@ -111,6 +146,14 @@ function decryptPayload(encryptedBase64) {
 
 // Store temp mail instances per session (simplified, use Redis in production)
 const sessions = new Map();
+
+// ===== SITE STATS (in-memory, resets on restart) =====
+const siteStats = {
+  totalEmailsCreated: 0,
+  totalMessagesReceived: 0
+};
+// Tracking unique messages to avoid counting duplicates
+const countedMessageIds = new Set();
 
 /**
  * Get or create TempMail instance for session
@@ -430,6 +473,10 @@ app.post('/api/email/create', async (req, res) => {
     // eTempMail: có thể truyền null cho username để random
     const finalUsername = (currentSource === 'etempmail') ? (username || null) : username;
     const result = await tempMail.createEmail(finalUsername, domain);
+    if (result.success) {
+      const ok = await incrementSiteStat('totalEmailsCreated', 1);
+      console.log('[Stats] Email created, DB increment:', ok ? 'OK' : 'FAILED');
+    }
     res.json(result);
   } catch (error) {
     res.status(500).json({
@@ -448,6 +495,10 @@ app.post('/api/email/random', async (req, res) => {
 
   try {
     const result = await tempMail.createRandomEmail();
+    if (result.success) {
+      const ok = await incrementSiteStat('totalEmailsCreated', 1);
+      console.log('[Stats] Random email created, DB increment:', ok ? 'OK' : 'FAILED');
+    }
     res.json(result);
   } catch (error) {
     res.status(500).json({
@@ -463,7 +514,7 @@ app.post('/api/email/random', async (req, res) => {
 app.post('/api/email/sync', async (req, res) => {
   const sessionId = req.headers['x-session-id'] || 'default';
   const tempMail = getTempMail(sessionId);
-  const { email, secretKey, token, cookies } = req.body;
+  const { email, secretKey, token, cookies, tempmailapiPassword } = req.body;
 
   console.log('\n[Server] POST /api/email/sync');
   console.log('[Server] Email from request:', email);
@@ -520,6 +571,7 @@ app.post('/api/email/sync', async (req, res) => {
       console.log('[Server] Apple token set');
     }
 
+
     console.log('[Server] Calling syncEmailOnReload()...');
     await tempMail.syncEmailOnReload();
     console.log('[Server] syncEmailOnReload() completed');
@@ -561,6 +613,16 @@ app.get('/api/messages', async (req, res) => {
       messagesCount: result.messages ? result.messages.length : 0
     });
     if (result.messages && result.messages.length > 0) {
+      // Count unique new messages
+      let newMsgCount = 0;
+      result.messages.forEach(msg => {
+        const msgKey = `${currentEmail}:${msg.id || msg.m_id}`;
+        if (!countedMessageIds.has(msgKey)) {
+          countedMessageIds.add(msgKey);
+          newMsgCount++;
+        }
+      });
+      if (newMsgCount > 0) incrementSiteStat('totalMessagesReceived', newMsgCount);
       console.log('[Server] First message:', {
         id: result.messages[0].id,
         subject: result.messages[0].subject,
@@ -610,6 +672,161 @@ app.get('/api/message/:messageId', async (req, res) => {
     }
   } catch (error) {
     // GET /api/message exception
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * PUBLIC API (alias) - Tách namespace khỏi các route nội bộ (/api/...)
+ *  - GET  /api-public/sources
+ *  - GET  /api-public/domains?sourceId=...
+ *  - POST /api-public/email/create
+ *  - GET  /api-public/messages
+ *  - GET  /api-public/message/:messageId
+ */
+app.get('/api-public/sources', (req, res) => {
+  const sessionId = req.headers['x-session-id'] || 'default';
+  const tempMail = getTempMail(sessionId);
+
+  res.json({
+    success: true,
+    sources: tempMail.getAllSources(),
+    current: tempMail.getCurrentSourceInfo()
+  });
+});
+
+app.get('/api-public/domains', async (req, res) => {
+  const sessionId = req.headers['x-session-id'] || 'default';
+  const tempMail = getTempMail(sessionId);
+
+  const sourceId = (req.query?.sourceId || '').toString().trim();
+
+  try {
+    if (sourceId && sourceId !== tempMail.getCurrentSourceInfo()?.id) {
+      // Set current source cho session để các bước create/messages dùng cùng 1 nguồn
+      await tempMail.switchSource(sourceId);
+    } else if (sourceId && sourceId === tempMail.getCurrentSourceInfo()?.id) {
+      // no-op
+    }
+
+    res.json({
+      success: true,
+      source: tempMail.getCurrentSourceInfo(),
+      domains: tempMail.getDomains()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+app.post('/api-public/email/create', async (req, res) => {
+  const sessionId = req.headers['x-session-id'] || 'default';
+  const tempMail = getTempMail(sessionId);
+  const { username, domain, sourceId } = req.body || {};
+
+  // Cho phép client chỉ định sourceId ngay trong bước create
+  // (không cần switch riêng)
+  const wantedSourceId = (sourceId || '').toString().trim();
+  if (wantedSourceId && wantedSourceId !== tempMail.getCurrentSourceInfo()?.id) {
+    try {
+      await tempMail.switchSource(wantedSourceId);
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+
+  const currentSource = tempMail.getCurrentSourceInfo()?.id || 'noopmail';
+
+  // eTempMail không bắt buộc username (có thể null để random)
+  if (currentSource !== 'etempmail' && !username) {
+    return res.status(400).json({
+      success: false,
+      error: 'Username is required'
+    });
+  }
+
+  try {
+    const finalUsername = (currentSource === 'etempmail') ? (username || null) : username;
+    const result = await tempMail.createEmail(finalUsername, domain);
+    if (result.success) {
+      const ok = await incrementSiteStat('totalEmailsCreated', 1);
+      console.log('[Stats] Public API: email created, DB increment:', ok ? 'OK' : 'FAILED');
+    }
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+app.get('/api-public/messages', async (req, res) => {
+  const sessionId = req.headers['x-session-id'] || 'default';
+  const tempMail = getTempMail(sessionId);
+  const currentEmail = tempMail.getCurrentEmail();
+
+  try {
+    const result = await tempMail.fetchMessages();
+
+    if (result.messages && result.messages.length > 0) {
+      // Count unique new messages
+      let newMsgCount = 0;
+      result.messages.forEach(msg => {
+        const msgKey = `${currentEmail}:${msg.id || msg.m_id}`;
+        if (!countedMessageIds.has(msgKey)) {
+          countedMessageIds.add(msgKey);
+          newMsgCount++;
+        }
+      });
+      if (newMsgCount > 0) incrementSiteStat('totalMessagesReceived', newMsgCount);
+    }
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+app.get('/api-public/message/:messageId', async (req, res) => {
+  const sessionId = req.headers['x-session-id'] || 'default';
+  const tempMail = getTempMail(sessionId);
+  const { messageId } = req.params;
+
+  try {
+    const result = await tempMail.getMessageDetail(messageId);
+
+    if (result.success) {
+      res.json({
+        success: true,
+        message: {
+          content: result.content || result.content_raw || '',
+          content_raw: result.content_raw || result.content || '',
+          html: result.html || null,
+          text: result.text || null,
+          subject: result.subject || '',
+          from: result.from || '',
+          to: result.to || '',
+          date: result.date || null,
+          hasAttm: result.hasAttm || 0
+        }
+      });
+    } else {
+      res.json(result);
+    }
+  } catch (error) {
     res.status(500).json({
       success: false,
       error: error.message
@@ -753,6 +970,154 @@ app.get('/api/stats', (req, res) => {
 });
 
 // ============================================
+// SITE STATS ENDPOINT (Footer)
+// ============================================
+app.get('/api/site-stats', async (req, res) => {
+  try {
+    const dbStats = await getSiteStats();
+    res.json({
+      success: true,
+      emailsCreated: dbStats.totalEmailsCreated || 0,
+      messagesReceived: dbStats.totalMessagesReceived || 0,
+      onlineUsers: activeUsers.size || 1
+    });
+  } catch (error) {
+    res.json({
+      success: true,
+      emailsCreated: 0,
+      messagesReceived: 0,
+      onlineUsers: activeUsers.size || 1
+    });
+  }
+});
+
+// POST /api/check - Heartbeat để track online users
+app.post('/api/check', (req, res) => {
+  // Dùng IP + User-Agent làm visitor ID
+  const ip = req.headers['x-forwarded-for'] || req.ip || 'unknown';
+  const ua = req.headers['user-agent'] || '';
+  const visitorId = `${ip}_${ua.substring(0, 50)}`;
+  activeUsers.set(visitorId, Date.now());
+  res.json({ success: true, online: activeUsers.size });
+});
+
+// POST /api/mailtotal - Tăng totalEmailsCreated
+app.post('/api/mailtotal', async (req, res) => {
+  try {
+    await incrementSiteStat('totalEmailsCreated', 1);
+    const stats = await getSiteStats();
+    res.json({ success: true, totalEmailsCreated: stats.totalEmailsCreated || 0 });
+  } catch (error) {
+    res.json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/mailreceived - Tăng totalMessagesReceived
+app.post('/api/mailreceived', async (req, res) => {
+  const { count } = req.body;
+  try {
+    await incrementSiteStat('totalMessagesReceived', count || 1);
+    const stats = await getSiteStats();
+    res.json({ success: true, totalMessagesReceived: stats.totalMessagesReceived || 0 });
+  } catch (error) {
+    res.json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// IP INFO PROXY ENDPOINT
+// ============================================
+app.get('/api/ipinfo', async (req, res) => {
+  try {
+    const axios = (await import('axios')).default;
+    // Lấy IP thật của client từ header (hỗ trợ proxy/cloudflare)
+    let clientIP = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip;
+    // Nếu IP là localhost/private hoặc IPv6 → lấy IPv4 public từ ipify
+    const isPrivate = !clientIP || clientIP === '127.0.0.1' || clientIP === '::1' || clientIP.startsWith('192.168.') || clientIP.startsWith('10.') || clientIP.includes(':');
+    if (isPrivate) {
+      const { data: ipData } = await axios.get('https://api4.ipify.org?format=json', { timeout: 5000 });
+      clientIP = ipData.ip;
+    }
+    const { data } = await axios.get(`https://ipwho.is/${clientIP}`, { timeout: 5000 });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Không thể lấy thông tin IP' });
+  }
+});
+
+// ============================================
+// VIDEO DOWNLOADER API ENDPOINTS
+// ============================================
+
+// Lấy danh sách platform hỗ trợ
+app.get('/api/video/platforms', (req, res) => {
+  res.json({ success: true, platforms: getSupportedPlatforms() });
+});
+
+// Fetch video data từ URL
+app.post('/api/video/download', async (req, res) => {
+  try {
+    const { url } = req.body;
+    if (!url) {
+      return res.status(400).json({ success: false, error: 'URL là bắt buộc' });
+    }
+    console.log('[Video Downloader] Fetching:', url);
+    const result = await fetchVideoData(url);
+    console.log('[Video Downloader] Success for platform:', result.platform);
+    res.json(result);
+  } catch (error) {
+    console.error('[Video Downloader] Error:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// YouTube download via YTSave - xử lý render/merge cho 1080p+
+app.post('/api/video/youtube/ytsave', async (req, res) => {
+  const { url } = req.body;
+  if (!url) {
+    return res.status(400).json({ error: 'Thiếu url' });
+  }
+  console.log('[YTSave Download] Processing:', url);
+  await handleYTSaveDownload(url, res);
+});
+
+// Proxy download - tải file từ CDN bên ngoài và trả về dưới dạng attachment
+app.get('/api/video/proxy-download', async (req, res) => {
+  const { url, filename } = req.query;
+  if (!url) {
+    return res.status(400).json({ error: 'Thiếu url' });
+  }
+  try {
+    console.log('[Proxy Download] Downloading:', url);
+    const axios = (await import('axios')).default;
+    const response = await axios.get(url, {
+      responseType: 'stream',
+      timeout: 60000,
+      headers: {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'referer': 'https://www.tiktok.com/',
+      },
+    });
+
+    const contentType = response.headers['content-type'] || 'application/octet-stream';
+    const safeName = (filename || 'video.mp4').replace(/[^a-zA-Z0-9._-]/g, '_');
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${safeName}"`);
+    if (response.headers['content-length']) {
+      res.setHeader('Content-Length', response.headers['content-length']);
+    }
+
+    response.data.pipe(res);
+  } catch (error) {
+    console.error('[Proxy Download] Error:', error.message);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Không thể tải file: ' + error.message });
+    }
+  }
+});
+
+// ============================================
 // ADMIN API ENDPOINTS
 // ============================================
 
@@ -760,31 +1125,62 @@ const ADMIN_CONFIG_PATH = path.join(__dirname, 'admin-config.json');
 
 // Helper: Read admin config (from DB or file)
 async function readAdminConfig() {
+  // Known sources - tất cả nguồn mail có trong hệ thống
+  const knownSources = [
+    'tmail', 'noopmail', 'temporarymail', 'mailio', 'pmail',
+    'etempmail', 'tinyhost', 'edumail', 'apple', 'generatoremail', 'moakt', 'tempmailapi', 'inboxes'
+  ];
+
+  let config = null;
+
   // Try database first
   if (isDatabaseAvailable()) {
-    const config = await getAdminConfigFromDB();
-    if (config) return config;
+    config = await getAdminConfigFromDB();
   }
 
   // Fallback to file
-  try {
-    const data = fs.readFileSync(ADMIN_CONFIG_PATH, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    // Default config if file doesn't exist
-    return {
-      defaultSource: 'noopmail',
-      enabledSources: {
-        tmail: true,
-        noopmail: true,
-        temporarymail: true,
-        mailio: true,
-        pmail: true,
-        etempmail: true
-      },
-      adminPassword: 'admin123'
-    };
+  if (!config) {
+    try {
+      const data = fs.readFileSync(ADMIN_CONFIG_PATH, 'utf8');
+      config = JSON.parse(data);
+    } catch (error) {
+      // Default config if file doesn't exist
+      config = {
+        defaultSource: 'noopmail',
+        enabledSources: {
+          tmail: true,
+          noopmail: true,
+          temporarymail: true,
+          mailio: true,
+          pmail: true,
+          etempmail: true,
+          generatoremail: true,
+          moakt: true,
+          tempmailapi: true,
+          inboxes: true
+        },
+        adminPassword: '171004' 
+      };
+    }
   }
+
+  // Auto-merge: thêm các nguồn mới chưa có trong config (mặc định bật)
+  if (config && config.enabledSources) {
+    let updated = false;
+    knownSources.forEach(sourceId => {
+      if (!(sourceId in config.enabledSources)) {
+        config.enabledSources[sourceId] = true;
+        updated = true;
+        console.log(`[AdminConfig] Auto-added new source: ${sourceId}`);
+      }
+    });
+    // Lưu lại nếu có thay đổi
+    if (updated) {
+      await writeAdminConfig(config);
+    }
+  }
+
+  return config;
 }
 
 // Helper: Write admin config (to DB or file)
@@ -887,6 +1283,34 @@ app.post('/api/admin/set-default', async (req, res) => {
   }
 });
 
+// Announcement endpoints
+// Public endpoint to fetch current announcement (visible to site users)
+app.get('/api/announcement', async (req, res) => {
+  try {
+    const config = await readAdminConfig();
+    res.json({ success: true, announcement: config.announcement || '' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin-only endpoint to update announcement text
+app.post('/api/admin/announcement', async (req, res) => {
+  const { announcement } = req.body || {};
+  if (typeof announcement !== 'string') {
+    return res.json({ success: false, error: 'announcement is required' });
+  }
+
+  try {
+    const config = await readAdminConfig();
+    config.announcement = announcement;
+    await writeAdminConfig(config);
+    res.json({ success: true, message: 'Announcement updated' });
+  } catch (error) {
+    res.json({ success: false, error: error.message });
+  }
+});
+
 /**
  * GET /api/sources/enabled - Get enabled sources (for frontend)
  */
@@ -958,6 +1382,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Public API docs (no API key)
+app.get('/api-public', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'api-public.html'));
+});
+
 // Serve static files (sau route '/' để không override)
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -983,7 +1412,7 @@ app.listen(PORT, '0.0.0.0', () => {
 ║     🚀 TempMail Server đang chạy!         ║
 ║                                           ║
 ║     URL: http://localhost:${PORT}         ║
-║     Mode: ${proxyMode.padEnd(32)} ║
+║     Mode: ${proxyMode.padEnd(32)}         ║
 ${proxyStatus}
 ${dbStatus}
 ║                                           ║

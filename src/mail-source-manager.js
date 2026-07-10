@@ -9,6 +9,10 @@ import { PMailClient } from './pmail-client.js';
 import { TinyHostClient } from './tinyhost-client.js';
 import { EduMailClient } from './edumail-client.js';
 import { AppleClient } from './apple-client.js';
+import { GeneratorEmailClient } from './generator-email-client.js';
+import { MoaktClient } from './moakt-client.js';
+import { TempMailApiClient } from './tempmailapi-client.js';
+import { InboxesClient } from './inboxes-client.js';
 import { CONFIG } from './config.js';
 
 /**
@@ -51,8 +55,9 @@ export class MailSourceManager {
       'etempmail': {
         name: 'eTempMail (etempmail.com)',
         client: null,
-        domains: ['ohm.edu.pl', 'cross.edu.pl', 'usa.edu.pl', 'beta.edu.pl'], // Domains mặc định
-        defaultDomain: 'ohm.edu.pl'
+        // Domains load động từ homepage (ids thay đổi theo thời gian)
+        domains: [],
+        defaultDomain: null
       },
       'priyo': {
         name: 'Priyo (priyo.email)',
@@ -63,8 +68,8 @@ export class MailSourceManager {
       'pmail': {
         name: 'PMAIL (Mail Forward)',
         client: null,
-        domains: ['shopsheap.online', 'mmocoffee.io.vn', 'phatdinh24.id.vn', 'playmaker.id.vn', 'shopaccsheap.pro.vn'],
-        defaultDomain: 'shopsheap.online'
+        domains: ['mmocoffee.io.vn', 'phatdinh24.id.vn', 'playmaker.id.vn', 'shopaccsheap.pro.vn'],
+        defaultDomain: 'mmocoffee.io.vn'
       },
       'tinyhost': {
         name: 'TinyHost (tinyhost.shop)',
@@ -79,7 +84,31 @@ export class MailSourceManager {
         defaultDomain: null
       },
       'apple': {
-        name: 'Apple.edu (apple.edu.pl)',
+        name: 'MailTemp (mailtemp.us)',
+        client: null,
+        domains: [], // Sẽ được load từ API
+        defaultDomain: null
+      },
+      'generatoremail': {
+        name: 'GeneratorEmail (generator.email)',
+        client: null,
+        domains: [], // Sẽ được load từ API
+        defaultDomain: null
+      },
+      'moakt': {
+        name: 'Moakt (moakt.com)',
+        client: null,
+        domains: [], // Sẽ được load từ API
+        defaultDomain: null
+      },
+      'tempmailapi': {
+        name: 'TempMailAPI (tempmailapi.io.vn)',
+        client: null,
+        domains: [], // Sẽ được load từ API
+        defaultDomain: null
+      },
+      'inboxes': {
+        name: 'Inboxes (inboxes.com)',
         client: null,
         domains: [], // Sẽ được load từ API
         defaultDomain: null
@@ -123,6 +152,14 @@ export class MailSourceManager {
         source.client = new EduMailClient();
       } else if (sourceId === 'apple') {
         source.client = new AppleClient();
+      } else if (sourceId === 'generatoremail') {
+        source.client = new GeneratorEmailClient();
+      } else if (sourceId === 'moakt') {
+        source.client = new MoaktClient();
+      } else if (sourceId === 'tempmailapi') {
+        source.client = new TempMailApiClient();
+      } else if (sourceId === 'inboxes') {
+        source.client = new InboxesClient();
       }
     }
 
@@ -134,7 +171,7 @@ export class MailSourceManager {
     }
 
     // Load domains cho NoopMail, TemporaryMail, MailIO, eTempMail, Priyo, PMAIL, TinyHost, EduMail và Apple (luôn cập nhật từ client)
-    if (sourceId === 'noopmail' || sourceId === 'temporarymail' || sourceId === 'mailio' || sourceId === 'etempmail' || sourceId === 'priyo' || sourceId === 'pmail' || sourceId === 'tinyhost' || sourceId === 'edumail' || sourceId === 'apple') {
+    if (sourceId === 'noopmail' || sourceId === 'temporarymail' || sourceId === 'mailio' || sourceId === 'etempmail' || sourceId === 'priyo' || sourceId === 'pmail' || sourceId === 'tinyhost' || sourceId === 'edumail' || sourceId === 'apple' || sourceId === 'generatoremail' || sourceId === 'moakt' || sourceId === 'inboxes') {
       const clientDomains = await source.client.getDomains();
       if (clientDomains && clientDomains.length > 0) {
         source.domains = clientDomains;
@@ -189,7 +226,39 @@ export class MailSourceManager {
    */
   getCurrentDefaultDomain() {
     const source = this.sources[this.currentSource];
-    return source ? source.defaultDomain : null;
+    if (!source) return null;
+
+    const isValid = (d) => {
+      if (d == null) return false;
+      const s = String(d).trim();
+      return s && s !== 'null' && s !== 'undefined' && s.includes('.') && s.length >= 3;
+    };
+
+    if (isValid(source.defaultDomain)) {
+      return String(source.defaultDomain).trim();
+    }
+
+    // Fallback: domain từ client (NoopMail sau /api/rd)
+    if (source.client) {
+      if (isValid(source.client.currentDomain)) {
+        source.defaultDomain = source.client.currentDomain;
+        return source.defaultDomain;
+      }
+      const domains = typeof source.client.getDomains === 'function'
+        ? source.client.getDomains()
+        : source.domains;
+      if (Array.isArray(domains)) {
+        const first = domains.find(isValid);
+        if (first) {
+          source.defaultDomain = first;
+          source.domains = domains;
+          return first;
+        }
+      }
+    }
+
+    const fromCache = (source.domains || []).find(isValid);
+    return fromCache || null;
   }
 
   /**

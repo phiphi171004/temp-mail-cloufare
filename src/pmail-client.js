@@ -9,13 +9,12 @@ import { simpleParser } from 'mailparser';
 export class PMailClient {
   constructor() {
     this.domains = [
-      'shopsheap.online',
       'mmocoffee.io.vn',
       'phatdinh24.id.vn',
       'playmaker.id.vn',
       'shopaccsheap.pro.vn'
     ];
-    this.defaultDomain = 'shopsheap.online';
+    this.defaultDomain = 'mmocoffee.io.vn';
     this.currentEmail = null;
     this.forwardEmail = 'phiphi19784321@gmail.com';
 

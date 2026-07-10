@@ -9,6 +9,7 @@
     "dev": "nodemon src/server.js",
     "server": "node src/server.js",
     "test": "node src/test.js",
+    "test:unit": "node --test test/*.test.js",
     "test:proxy": "node src/test-proxy.js"
   },
   "keywords": [
@@ -20,6 +21,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@distube/ytdl-core": "^4.16.12",
     "axios": "^1.6.2",
     "axios-cookiejar-support": "^4.0.7",
     "boxen": "^7.1.1",
@@ -30,8 +32,12 @@
     "imap": "^0.8.19",
     "inquirer": "^9.2.12",
     "mailparser": "^3.9.1",
+    "metadownloader": "^1.0.0",
     "ora": "^7.0.1",
     "pg": "^8.17.2",
+    "qs": "^6.11.2",
+    "sanitize-html": "^2.17.5",
+    "socket.io-client": "^4.8.3",
     "tough-cookie": "^4.1.3"
   },
   "devDependencies": {

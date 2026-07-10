@@ -2,16 +2,16 @@ import axios from 'axios';
 import { CONFIG } from './config.js';
 
 /**
- * Apple.edu.pl Client
- * REST API client cho apple.edu.pl temporary email service
+ * MailTemp Client (mailtemp.us)
+ * REST API client cho mailtemp.us temporary email service
  */
 export class AppleClient {
   constructor() {
-    this.baseURL = 'https://apple.edu.pl';
+    this.baseURL = 'https://mailtemp.us';
     this.token = null;
     this.currentEmail = null;
     this.expiresAt = null;
-    
+
     // Proxy stats tracking
     this.proxyStats = {
       totalRequests: 0,
@@ -44,7 +44,7 @@ export class AppleClient {
 
     return {
       ...this.proxyStats,
-      averageResponseTime: this.proxyStats.totalRequests > 0 
+      averageResponseTime: this.proxyStats.totalRequests > 0
         ? Math.round(this.proxyStats.totalResponseTime / this.proxyStats.totalRequests)
         : 0,
       successRate: this.proxyStats.totalRequests > 0
@@ -59,7 +59,7 @@ export class AppleClient {
   async sendRequest(method, endpoint, data = null) {
     const url = `${this.baseURL}${endpoint}`;
     const startTime = Date.now();
-    
+
     if (CONFIG.USE_PROXY) {
       this.proxyStats.totalRequests++;
     }
@@ -135,11 +135,11 @@ export class AppleClient {
   async getDomains() {
     try {
       const response = await this.sendRequest('GET', '/api/domains');
-      
+
       if (response.status === 'success') {
         return response.domains.map(d => d.domain);
       }
-      
+
       return [];
     } catch (error) {
       console.error('[Apple] Lỗi lấy domains:', error.message);
@@ -153,12 +153,12 @@ export class AppleClient {
   async createRandomEmail() {
     try {
       const response = await this.sendRequest('POST', '/api/create-session');
-      
+
       if (response.status === 'success') {
         this.token = response.token;
         this.currentEmail = response.email;
         this.expiresAt = response.expires_at;
-        
+
         return {
           success: true,
           email: response.email,
@@ -166,7 +166,7 @@ export class AppleClient {
           expiresAt: response.expires_at
         };
       }
-      
+
       return {
         success: false,
         error: 'Không thể tạo email'
@@ -187,7 +187,7 @@ export class AppleClient {
     try {
       // Lấy danh sách domains để tìm domain_id
       const domainsResponse = await this.sendRequest('GET', '/api/domains');
-      
+
       if (domainsResponse.status !== 'success') {
         return {
           success: false,
@@ -196,7 +196,7 @@ export class AppleClient {
       }
 
       const domainObj = domainsResponse.domains.find(d => d.domain === domain);
-      
+
       if (!domainObj) {
         return {
           success: false,
@@ -208,12 +208,12 @@ export class AppleClient {
         prefix: username,
         domain_id: domainObj.id
       });
-      
+
       if (response.status === 'success') {
         this.token = response.token;
         this.currentEmail = response.email;
         this.expiresAt = response.expires_at;
-        
+
         return {
           success: true,
           email: response.email,
@@ -221,7 +221,7 @@ export class AppleClient {
           expiresAt: response.expires_at
         };
       }
-      
+
       return {
         success: false,
         error: 'Không thể tạo email'
@@ -274,10 +274,10 @@ export class AppleClient {
 
     try {
       const response = await this.sendRequest('GET', `/api/check-mail?token=${this.token}`);
-      
+
       if (response.status === 'success') {
         const messages = response.messages || [];
-        
+
         // Transform sang format chuẩn
         const transformedMessages = messages.map(msg => ({
           id: msg.id,
@@ -289,14 +289,14 @@ export class AppleClient {
           body: null, // Cần gọi read-mail để lấy body
           attachments: []
         }));
-        
+
         return {
           success: true,
           messages: transformedMessages,
           count: transformedMessages.length
         };
       }
-      
+
       return {
         success: false,
         error: 'Không thể lấy messages',
@@ -328,12 +328,12 @@ export class AppleClient {
     try {
       console.log('[Apple] Reading message:', messageId);
       const response = await this.sendRequest('GET', `/api/read-mail?token=${this.token}&id=${messageId}`);
-      
+
       console.log('[Apple] read-mail response:', JSON.stringify(response, null, 2));
-      
+
       if (response.status === 'success' && response.message) {
         const msg = response.message;
-        
+
         return {
           success: true,
           message: {
@@ -349,7 +349,7 @@ export class AppleClient {
           }
         };
       }
-      
+
       return {
         success: false,
         error: 'Không thể đọc message'
@@ -379,14 +379,14 @@ export class AppleClient {
         token: this.token,
         id: messageId
       });
-      
+
       if (response.status === 'success') {
         return {
           success: true,
           message: response.message || 'Đã xóa message'
         };
       }
-      
+
       return {
         success: false,
         error: 'Không thể xóa message'

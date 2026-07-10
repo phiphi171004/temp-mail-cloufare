@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TempMail - Email Tạm Thời</title>
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%236366f1;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%238b5cf6;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Cpath d='M30 35 L50 50 L70 35 M30 35 L30 65 L70 65 L70 35' stroke='white' stroke-width='4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%236366f1;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%238b5cf6;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Cpath d='M30 35 L50 50 L70 35 M30 35 L30 65 L70 65 L70 35' stroke='white' stroke-width='4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%236366f1;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%238b5cf6;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Cpath d='M30 35 L50 50 L70 35 M30 35 L30 65 L70 65 L70 35' stroke='white' stroke-width='4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <link rel="apple-touch-icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%236366f1;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%238b5cf6;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Cpath d='M30 35 L50 50 L70 35 M30 35 L30 65 L70 65 L70 35' stroke='white' stroke-width='4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -59,11 +62,11 @@
             align-items: center;
             width: 100%;
         }
-        
+
         .header-logo {
             text-align: left;
         }
-        
+
         .header-source {
             display: flex;
             align-items: center;
@@ -76,7 +79,7 @@
             margin-bottom: 8px;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
-        
+
         .header h1 i {
             font-size: 2.5rem;
         }
@@ -185,7 +188,8 @@
             gap: 8px;
             /* TỐI ƯU: Giữ nguyên kích thước khi loading */
             position: relative;
-            min-height: 44px; /* Đảm bảo chiều cao tối thiểu */
+            min-height: 44px;
+            /* Đảm bảo chiều cao tối thiểu */
         }
 
         .btn-primary {
@@ -307,8 +311,16 @@
         }
 
         @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.3; }
+
+            0%,
+            50% {
+                opacity: 1;
+            }
+
+            51%,
+            100% {
+                opacity: 0.3;
+            }
         }
 
         .time-date {
@@ -414,7 +426,7 @@
             .header h1 {
                 font-size: 2rem;
             }
-            
+
             .header h1 i {
                 font-size: 2rem;
             }
@@ -498,18 +510,18 @@
             body {
                 padding: 10px;
             }
-            
+
             .header-content {
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
                 gap: 15px;
             }
-            
+
             .header-logo {
                 text-align: center;
             }
-            
+
             .header-source {
                 justify-content: center;
             }
@@ -517,7 +529,7 @@
             .header h1 {
                 font-size: 1.5rem;
             }
-            
+
             .header h1 i {
                 font-size: 1.5rem;
             }
@@ -637,13 +649,13 @@
             white-space: nowrap;
             flex-shrink: 0;
         }
-        
+
         /* Cho phép tiêu đề xuống dòng khi màn hình nhỏ */
         @media (max-width: 768px) {
             .ip-info-item {
                 flex-wrap: wrap;
             }
-            
+
             .ip-info-item strong {
                 white-space: normal;
             }
@@ -850,12 +862,45 @@
 
         .detail-content {
             background: white;
-            padding: 30px;
+            padding: 16px;
             border-radius: 12px;
             border: 2px solid var(--border);
             line-height: 1.7;
             color: var(--dark);
             min-height: 300px;
+            /* Prevent wide/mobile email HTML from blowing up the whole page */
+            max-width: 100%;
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            box-sizing: border-box;
+            contain: layout style;
+        }
+
+        /* Sandboxed iframe for email body (isolates mobile CSS / fixed widths) */
+        .detail-content .email-content-frame {
+            display: block;
+            width: 100%;
+            min-height: 200px;
+            max-width: 100%;
+            border: 0;
+            background: #fff;
+            border-radius: 8px;
+        }
+
+        /* Fallback if EmailRenderer is unavailable */
+        .detail-content .email-html-fallback {
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .detail-content .email-html-fallback img,
+        .detail-content .email-html-fallback video,
+        .detail-content .email-html-fallback table {
+            max-width: 100% !important;
+            height: auto !important;
         }
 
         .detail-content img {
@@ -938,6 +983,7 @@
                 opacity: 0;
                 transform: translateY(-50px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -997,7 +1043,8 @@
             display: none !important;
         }
 
-        .form-input, .form-select {
+        .form-input,
+        .form-select {
             padding: 12px 16px;
             border: 2px solid var(--border);
             border-radius: 10px;
@@ -1006,7 +1053,8 @@
             background: white;
         }
 
-        .form-input:focus, .form-select:focus {
+        .form-input:focus,
+        .form-select:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
@@ -1021,62 +1069,123 @@
         }
 
         /* Toast Notifications */
-        .toast {
+        .toast-container {
             position: fixed;
             top: 20px;
             right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+            max-width: 420px;
+            width: calc(100% - 40px);
+        }
+
+        .toast {
             background: white;
-            padding: 16px 24px;
+            padding: 14px 20px;
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
             display: flex;
             align-items: center;
             gap: 12px;
-            transform: translateX(400px);
-            transition: transform 0.3s;
-            z-index: 1000;
-            max-width: 400px;
+            pointer-events: auto;
+            animation: toastSlideIn 0.35s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+            overflow: hidden;
+            position: relative;
         }
 
-        .toast.show {
-            transform: translateX(0);
+        .toast.hiding {
+            animation: toastSlideOut 0.3s ease-in forwards;
+        }
+
+        .toast::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: currentColor;
+            opacity: 0.3;
+            animation: toastProgress 3s linear forwards;
         }
 
         .toast.success {
             border-left: 4px solid var(--success);
+            color: var(--success);
         }
 
         .toast.error {
             border-left: 4px solid var(--danger);
+            color: var(--danger);
         }
 
         .toast.info {
             border-left: 4px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .toast.warning {
+            border-left: 4px solid #f59e0b;
+            color: #f59e0b;
         }
 
         .toast i {
-            font-size: 1.5rem;
-        }
-
-        .toast.success i {
-            color: var(--success);
-        }
-
-        .toast.error i {
-            color: var(--danger);
-        }
-
-        .toast.info i {
-            color: var(--primary);
+            font-size: 1.3rem;
+            flex-shrink: 0;
         }
 
         .toast-content {
             flex: 1;
+            min-width: 0;
         }
 
         .toast-message {
             font-weight: 500;
             color: var(--dark);
+            font-size: 0.9rem;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes toastSlideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+                max-height: 100px;
+                margin-bottom: 0;
+            }
+
+            to {
+                transform: translateX(120%);
+                opacity: 0;
+                max-height: 0;
+                margin-bottom: -10px;
+                padding: 0;
+            }
+        }
+
+        @keyframes toastProgress {
+            from {
+                width: 100%;
+            }
+
+            to {
+                width: 0%;
+            }
         }
 
         /* Loading */
@@ -1091,7 +1200,173 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Video Downloader */
+        .btn-video {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white !important;
+        }
+
+        .btn-video:hover {
+            background: linear-gradient(135deg, #7c3aed, #db2777);
+            transform: translateY(-2px);
+        }
+
+        .video-platforms {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .video-platforms i {
+            font-size: 1.5rem;
+            opacity: 0.7;
+            transition: all 0.3s;
+        }
+
+        .video-platforms i:hover {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        .video-results {
+            margin-top: 20px;
+        }
+
+        .video-info-card {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .video-info-header {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .video-thumbnail {
+            width: 120px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: var(--border);
+        }
+
+        .video-meta h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+
+        .video-meta .video-platform-badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .video-meta .video-duration {
+            color: var(--gray);
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+
+        .video-section-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 16px 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .video-section-label i {
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .video-download-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .video-download-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 16px;
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .video-download-link:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .video-download-link i {
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .video-download-link .dl-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .video-download-link .dl-badge {
+            background: var(--light);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        .video-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            margin-top: 16px;
+        }
+
+        .video-loading {
+            text-align: center;
+            padding: 30px;
+            color: var(--gray);
+        }
+
+        .video-loading i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 12px;
+            display: block;
         }
 
         /* Responsive */
@@ -1102,19 +1377,19 @@
                 align-items: center;
                 gap: 15px;
             }
-            
+
             .header-logo {
                 text-align: center;
             }
-            
+
             .header-source {
                 justify-content: center;
             }
-            
+
             .header h1 {
                 font-size: 2rem;
             }
-            
+
             .header h1 i {
                 font-size: 2rem;
             }
@@ -1136,10 +1411,11 @@
                 text-align: center;
             }
 
-            .toast {
+            .toast-container {
                 right: 10px;
                 left: 10px;
                 max-width: none;
+                width: auto;
             }
         }
 
@@ -1149,6 +1425,7 @@
                 opacity: 0;
                 transform: translateY(10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -1171,7 +1448,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         /* Loading Overlay */
@@ -1226,7 +1505,7 @@
         }
 
         /* Ẩn text và icon khi loading nhưng giữ không gian */
-        .btn.loading > * {
+        .btn.loading>* {
             opacity: 0;
             visibility: hidden;
         }
@@ -1262,8 +1541,13 @@
         }
 
         @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
         }
 
         .skeleton-message {
@@ -1318,6 +1602,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <!-- Header -->
@@ -1325,16 +1610,19 @@
             <div class="header-content">
                 <div class="header-logo">
                     <h1><i class="fas fa-envelope"></i> TempMail</h1>
-                   
+
                 </div>
                 <div class="header-source">
                     <label for="mailSource" style="color: white; font-size: 0.9rem; font-weight: 500;">
                         <i class="fas fa-server"></i> Nguồn:
                     </label>
-                    <select id="mailSource" class="form-select" style="min-width: 180px; background: white; border: none; padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; cursor: pointer;" onchange="switchMailSource()">
+                    <select id="mailSource" class="form-select"
+                        style="min-width: 180px; background: white; border: none; padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; cursor: pointer;"
+                        onchange="switchMailSource()">
                         <option value="tmail">TMail</option>
                         <!-- <option value="imail">iMail (Mail EDU)</option> --> <!-- Disabled: iMail source removed -->
-                        <!-- <option value="tempmail-id">TempMail ID</option> --> <!-- Disabled: TempMail ID source removed -->
+                        <!-- <option value="tempmail-id">TempMail ID</option> -->
+                        <!-- Disabled: TempMail ID source removed -->
                         <option value="noopmail">NoopMail</option>
                         <option value="temporarymail">TemporaryMail</option>
                         <option value="mailio">MailIO</option>
@@ -1379,6 +1667,9 @@
                     <button class="btn btn-danger" onclick="openDeleteModal()">
                         <i class="fas fa-trash-alt"></i> Xóa Email
                     </button>
+                    <button class="btn btn-secondary" type="button" onclick="window.location.href='/api-public'">
+                        <i class="fas fa-code"></i> API Docs
+                    </button>
                 </div>
             </div>
 
@@ -1415,60 +1706,80 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- IP Info & Time Cards Container - 2 khung nằm cạnh nhau -->
+    <div class="info-cards-container">
+        <!-- IP Info Card - 50% width -->
+        <div class="ip-info-card">
+            <div class="ip-info-header">
+                <i class="fas fa-globe"></i>
+                <h3>Thông tin IP của bạn</h3>
+            </div>
+            <div class="ip-info-content" id="ipInfoContent">
+                <div class="ip-info-loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Đang tải thông tin IP...</span>
+                </div>
             </div>
         </div>
 
-        <!-- IP Info & Time Cards Container - 2 khung nằm cạnh nhau -->
-        <div class="info-cards-container">
-            <!-- IP Info Card - 50% width -->
-            <div class="ip-info-card">
-                <div class="ip-info-header">
-                    <i class="fas fa-globe"></i>
-                    <h3>Thông tin IP của bạn</h3>
-                </div>
-                <div class="ip-info-content" id="ipInfoContent">
-                    <div class="ip-info-loading">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <span>Đang tải thông tin IP...</span>
+        <!-- Time Card - 50% width -->
+        <div class="time-card">
+            <div class="time-header">
+                <i class="fas fa-clock"></i>
+                <h3>Thời gian hiện tại</h3>
+            </div>
+            <div class="time-content">
+                <div class="time-display" id="timeDisplay">
+                    <div class="time-main">
+                        <span id="timeHours">00</span>
+                        <span class="time-separator">:</span>
+                        <span id="timeMinutes">00</span>
+                        <span class="time-separator">:</span>
+                        <span id="timeSeconds">00</span>
+                    </div>
+                    <div class="time-date">
+                        <span>Ngày : </span>
+                        <span id="timeDate">--/--/----</span>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Time Card - 50% width -->
-            <div class="time-card">
-                <div class="time-header">
-                    <i class="fas fa-clock"></i>
-                    <h3>Thời gian hiện tại</h3>
-                </div>
-                <div class="time-content">
-                    <div class="time-display" id="timeDisplay">
-                        <div class="time-main">
-                            <span id="timeHours">00</span>
-                            <span class="time-separator">:</span>
-                            <span id="timeMinutes">00</span>
-                            <span class="time-separator">:</span>
-                            <span id="timeSeconds">00</span>
-                        </div>
-                        <div class="time-date">
-                            <span>Ngày : </span>
-                            <span id="timeDate">--/--/----</span>
-                        </div>
-                    </div>
-                </div>
+    <!-- Video Download Button -->
+    <div class="contact-admin-card" style="cursor: pointer;" onclick="openVideoModal()">
+        <div class="contact-admin-link" style="pointer-events: none; flex-wrap: wrap; gap: 12px;">
+            <i class="fas fa-video" style="color: #8b5cf6; font-size: 1.2rem;"></i>
+            <span>Tải Video / Audio</span>
+            <div style="display: flex; gap: 10px; align-items: center; opacity: 0.7;">
+                <i class="fab fa-youtube" style="color: #FF0000;" title="YouTube"></i>
+                <i class="fab fa-tiktok" title="TikTok"></i>
+                <i class="fab fa-facebook" style="color: #1877F2;" title="Facebook"></i>
+                <i class="fab fa-instagram" style="color: #E4405F;" title="Instagram"></i>
+                <i class="fab fa-twitter" style="color: #1DA1F2;" title="Twitter"></i>
+                <i class="fab fa-spotify" style="color: #1DB954;" title="Spotify"></i>
+                <i class="fab fa-reddit" style="color: #FF4500;" title="Reddit"></i>
+                <i class="fab fa-pinterest" style="color: #E60023;" title="Pinterest"></i>
+                <i class="fab fa-soundcloud" style="color: #FF5500;" title="SoundCloud"></i>
             </div>
+            <i class="fas fa-arrow-right"></i>
         </div>
+    </div>
 
-        <!-- Contact Admin Card -->
-        <div class="contact-admin-card">
-            <a href="https://t.me/Bug_Busters12" target="_blank" rel="noopener noreferrer" class="contact-admin-link">
-                <i class="fab fa-telegram"></i>
-                <span>Liên hệ với Admin tại đây</span>
-                <i class="fas fa-external-link-alt"></i>
-            </a>
-        </div>
+    <!-- Contact Admin Card -->
+    <div class="contact-admin-card">
+        <a href="https://t.me/Bug_Busters12" target="_blank" rel="noopener noreferrer" class="contact-admin-link">
+            <i class="fab fa-telegram"></i>
+            <span>Liên hệ với Admin tại đây</span>
+            <i class="fas fa-external-link-alt"></i>
+        </a>
+    </div>
 
     <!-- Toast Container -->
-    <div id="toast" class="toast"></div>
+    <div id="toastContainer" class="toast-container"></div>
 
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay">
@@ -1490,7 +1801,8 @@
             <div class="modal-body">
                 <div class="form-group" id="usernameGroup">
                     <label for="username"><i class="fas fa-user"></i> Tên người dùng</label>
-                    <input type="text" id="username" class="form-input" placeholder="Nhập tên của bạn (3-15 ký tự)..." maxlength="15">
+                    <input type="text" id="username" class="form-input" placeholder="Nhập tên của bạn (3-15 ký tự)..."
+                        maxlength="15">
                     <small style="color: var(--gray); font-size: 0.85rem;">Chỉ chữ cái, số và dấu gạch dưới</small>
                 </div>
                 <div class="form-group">
@@ -1498,8 +1810,10 @@
                     <select id="domain" class="form-select">
                         <option value="">Đang tải...</option>
                     </select>
-                    <small id="domainHelp" style="color: var(--gray); font-size: 0.85rem; display: none;">TempMail ID: Để trống username để tạo ngẫu nhiên</small>
-                    <small id="etempmailHelp" style="color: var(--gray); font-size: 0.85rem; display: none;">eTempMail: Username sẽ được tạo tự động (chỉ chọn domain)</small>
+                    <small id="domainHelp" style="color: var(--gray); font-size: 0.85rem; display: none;">TempMail ID:
+                        Để trống username để tạo ngẫu nhiên</small>
+                    <small id="etempmailHelp" style="color: var(--gray); font-size: 0.85rem; display: none;">eTempMail:
+                        Username sẽ được tạo tự động (chỉ chọn domain)</small>
                 </div>
             </div>
             <div class="modal-footer">
@@ -1512,7 +1826,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Delete Email Confirmation Modal -->
     <div id="deleteModal" class="modal">
         <div class="modal-content">
@@ -1524,11 +1838,13 @@
             </div>
             <div class="modal-body">
                 <div style="text-align: center; padding: 1rem 0;">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ef4444; margin-bottom: 1rem;"></i>
+                    <i class="fas fa-exclamation-triangle"
+                        style="font-size: 3rem; color: #ef4444; margin-bottom: 1rem;"></i>
                     <p style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text);">
                         Bạn có chắc muốn xóa email này?
                     </p>
-                    <p id="deleteEmailAddress" style="font-size: 1rem; color: var(--gray); font-weight: 500; word-break: break-all;">
+                    <p id="deleteEmailAddress"
+                        style="font-size: 1rem; color: var(--gray); font-weight: 500; word-break: break-all;">
                         <!-- Email sẽ được hiển thị ở đây -->
                     </p>
                     <p style="font-size: 0.9rem; color: var(--gray); margin-top: 1rem;">
@@ -1547,6 +1863,355 @@
         </div>
     </div>
 
+    <!-- Video Downloader Modal -->
+    <div id="videoModal" class="modal">
+        <div class="modal-content" style="max-width: 600px; max-height: 85vh; display: flex; flex-direction: column;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-video"></i> Tải Video / Audio</h3>
+                <button class="modal-close" onclick="closeVideoModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="overflow-y: auto; flex: 1;">
+                <!-- Platform Icons -->
+                <div class="video-platforms">
+                    <i class="fab fa-youtube" title="YouTube" style="color: #FF0000;"></i>
+                    <i class="fab fa-tiktok" title="TikTok"></i>
+                    <i class="fab fa-facebook" title="Facebook" style="color: #1877F2;"></i>
+                    <i class="fab fa-instagram" title="Instagram" style="color: #E4405F;"></i>
+                    <i class="fab fa-twitter" title="Twitter/X" style="color: #1DA1F2;"></i>
+                    <i class="fab fa-spotify" title="Spotify" style="color: #1DB954;"></i>
+                    <i class="fab fa-reddit" title="Reddit" style="color: #FF4500;"></i>
+                    <i class="fab fa-pinterest" title="Pinterest" style="color: #E60023;"></i>
+                    <i class="fab fa-soundcloud" title="SoundCloud" style="color: #FF5500;"></i>
+                </div>
+                <p style="text-align: center; color: var(--gray); font-size: 0.85rem; margin-bottom: 20px;">Hỗ trợ
+                    YouTube, TikTok, Facebook, Instagram, Twitter, Spotify và nhiều nền tảng khác</p>
+
+                <!-- URL Input -->
+                <div class="form-group">
+                    <label for="videoUrl"><i class="fas fa-link"></i> Nhập URL Video</label>
+                    <input type="text" id="videoUrl" class="form-input"
+                        placeholder="https://www.youtube.com/watch?v=... hoặc link TikTok, Facebook...">
+                </div>
+
+                <!-- Results Area -->
+                <div id="videoResults" class="video-results" style="display: none;"></div>
+
+                <!-- Error Area -->
+                <div id="videoError" class="video-error" style="display: none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeVideoModal()">
+                    <i class="fas fa-times"></i> Đóng
+                </button>
+                <button class="btn btn-primary" id="fetchVideoBtn" onclick="fetchVideoData()">
+                    <i class="fas fa-search"></i> Tìm Video
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATS FOOTER -->
+    <style>
+        .stats-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 900;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 8px 0;
+            font-family: 'Inter', -apple-system, sans-serif;
+        }
+
+        .stats-footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+            padding: 0 16px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            font-size: 15px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-value.email {
+            color: #f59e0b;
+        }
+
+        .stat-value.received {
+            color: #10b981;
+        }
+
+        .stat-value.online {
+            color: #6366f1;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+        }
+
+        .stat-icon {
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+        .stat-icon.email {
+            color: #f59e0b;
+        }
+
+        .stat-icon.received {
+            color: #10b981;
+        }
+
+        .stat-icon.online {
+            color: #6366f1;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            display: inline-block;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.3);
+            }
+        }
+
+        /* Thêm padding bottom cho body để footer không che content */
+        body {
+            padding-bottom: 50px !important;
+        }
+
+        @media (max-width: 480px) {
+            .stats-footer-inner {
+                gap: 16px;
+            }
+
+            .stat-item {
+                font-size: 11px;
+            }
+
+            .stat-value {
+                font-size: 13px;
+            }
+        }
+    </style>
+
+    <div class="stats-footer">
+        <div class="stats-footer-inner">
+            <div class="stat-item">
+                <i class="fas fa-envelope stat-icon email"></i>
+                <span class="stat-value email" id="statEmails">0</span>
+                <span class="stat-label">Email</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-inbox stat-icon received"></i>
+                <span class="stat-value received" id="statReceived">0</span>
+                <span class="stat-label">Received</span>
+            </div>
+            <div class="stat-item">
+                <span class="online-dot"></span>
+                <span class="stat-value online" id="statOnline">1</span>
+                <span class="stat-label">Online</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Announcement Modal -->
+    <div id="announcementModal" class="ann-modal" aria-hidden="true">
+        <div class="ann-backdrop"></div>
+        <div class="ann-card" role="dialog" aria-modal="true" aria-labelledby="announcementTitle">
+            <!-- Decorative elements -->
+            <div class="ann-glow"></div>
+            <div class="ann-particles">
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <!-- Close button -->
+            <button id="announcementCloseX" class="ann-close-btn" aria-label="Close">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <!-- Header -->
+            <div class="ann-header">
+                <div class="ann-icon-wrap">
+                    <div class="ann-icon-ring"></div>
+                    <div class="ann-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    </div>
+                </div>
+                <div class="ann-header-text">
+                    <h3 class="ann-title" id="announcementTitle">Thông báo quan trọng</h3>
+                    <p class="ann-subtitle">Từ quản trị viên hệ thống</p>
+                </div>
+            </div>
+            <!-- Divider -->
+            <div class="ann-divider"></div>
+            <!-- Content -->
+            <div class="ann-body" id="announcementContent">
+                <!-- Announcement text will be injected here -->
+            </div>
+            <!-- Footer -->
+            <div class="ann-footer">
+                <button id="announcementMute" class="ann-btn-mute">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span>Không hiện trong 12h</span>
+                </button>
+                <button id="announcementAction" class="ann-btn-primary">
+                    <span>Đã hiểu</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Premium announcement modal styles
+        (function() {
+            const css = `
+            .ann-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:99999;padding:24px;perspective:1200px}
+            .ann-modal.show{display:flex}
+            .ann-modal.show .ann-backdrop{animation:annFadeIn .4s ease forwards}
+            .ann-modal.show .ann-card{animation:annCardIn .5s cubic-bezier(.16,1,.3,1) forwards}
+            .ann-backdrop{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(99,102,241,.15),rgba(0,0,0,.7));backdrop-filter:blur(12px) saturate(1.2);opacity:0}
+            .ann-card{position:relative;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);padding:0;border-radius:24px;max-width:520px;width:100%;box-shadow:0 25px 80px -12px rgba(99,102,241,.35),0 0 0 1px rgba(255,255,255,.8) inset,0 2px 0 rgba(255,255,255,.9) inset;color:#1e293b;z-index:100000;overflow:hidden;opacity:0;transform:translateY(30px) scale(.96)}
+            .ann-glow{position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(from 0deg,#6366f1,#a855f7,#ec4899,#6366f1);animation:annGlowSpin 4s linear infinite;opacity:.06;pointer-events:none}
+            .ann-particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+            .ann-particles span{position:absolute;width:4px;height:4px;background:linear-gradient(135deg,#6366f1,#a855f7);border-radius:50%;opacity:0;animation:annParticle 3s ease-in-out infinite}
+            .ann-particles span:nth-child(1){top:20%;left:10%;animation-delay:0s}
+            .ann-particles span:nth-child(2){top:60%;left:85%;animation-delay:.5s}
+            .ann-particles span:nth-child(3){top:80%;left:30%;animation-delay:1s}
+            .ann-particles span:nth-child(4){top:10%;left:70%;animation-delay:1.5s}
+            .ann-particles span:nth-child(5){top:45%;left:5%;animation-delay:2s}
+            .ann-particles span:nth-child(6){top:30%;left:90%;animation-delay:2.5s}
+            .ann-close-btn{position:absolute;top:16px;right:16px;width:36px;height:36px;border:none;background:rgba(15,23,42,.04);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#64748b;transition:all .2s ease;z-index:10}
+            .ann-close-btn:hover{background:rgba(239,68,68,.08);color:#ef4444;transform:rotate(90deg)}
+            .ann-header{display:flex;align-items:center;gap:16px;padding:28px 28px 0}
+            .ann-icon-wrap{position:relative;flex-shrink:0}
+            .ann-icon-ring{position:absolute;inset:-4px;border-radius:18px;background:conic-gradient(from 0deg,#6366f1,#a855f7,#ec4899,#6366f1);animation:annGlowSpin 3s linear infinite;opacity:.3}
+            .ann-icon{position:relative;width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 8px 32px rgba(99,102,241,.4)}
+            .ann-header-text{flex:1}
+            .ann-title{margin:0;font-size:20px;font-weight:800;background:linear-gradient(135deg,#1e293b,#475569);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.3px}
+            .ann-subtitle{margin:4px 0 0;font-size:13px;color:#94a3b8;font-weight:500}
+            .ann-divider{margin:20px 28px 0;height:1px;background:linear-gradient(90deg,transparent,rgba(99,102,241,.2),transparent)}
+            .ann-body{padding:20px 28px;font-size:15px;line-height:1.75;color:#334155;max-height:45vh;overflow-y:auto;position:relative}
+            .ann-body::-webkit-scrollbar{width:4px}
+            .ann-body::-webkit-scrollbar-track{background:transparent}
+            .ann-body::-webkit-scrollbar-thumb{background:rgba(99,102,241,.2);border-radius:4px}
+            .ann-footer{display:flex;align-items:center;justify-content:space-between;padding:16px 28px 24px;gap:12px;border-top:1px solid rgba(226,232,240,.6)}
+            .ann-btn-mute{display:flex;align-items:center;gap:8px;padding:10px 18px;border:1px solid #e2e8f0;border-radius:10px;background:rgba(248,250,252,.8);color:#64748b;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s ease}
+            .ann-btn-mute:hover{background:#f1f5f9;border-color:#cbd5e1;color:#475569;transform:translateY(-1px)}
+            .ann-btn-primary{display:flex;align-items:center;gap:8px;padding:12px 24px;border:none;border-radius:12px;background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s ease;box-shadow:0 4px 20px rgba(99,102,241,.3)}
+            .ann-btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(99,102,241,.45);background:linear-gradient(135deg,#4f46e5,#6d28d9)}
+            .ann-btn-primary:active{transform:translateY(0);box-shadow:0 2px 10px rgba(99,102,241,.3)}
+            @keyframes annFadeIn{to{opacity:1}}
+            @keyframes annCardIn{to{opacity:1;transform:translateY(0) scale(1)}}
+            @keyframes annGlowSpin{to{transform:rotate(360deg)}}
+            @keyframes annParticle{0%,100%{opacity:0;transform:translateY(0) scale(.5)}50%{opacity:.6;transform:translateY(-20px) scale(1)}}
+            @media(max-width:600px){.ann-card{border-radius:18px;max-width:100%}.ann-header{padding:22px 20px 0}.ann-body{padding:16px 20px;font-size:14px}.ann-footer{padding:14px 20px 20px;flex-wrap:wrap}.ann-icon{width:44px;height:44px;border-radius:12px}.ann-title{font-size:17px}}
+            `;
+            const style = document.createElement('style'); style.textContent = css; document.head.appendChild(style);
+        })();
+
+        // Fetch announcement and show modal if non-empty and not muted
+        async function checkAnnouncementAndShow() {
+            try {
+                // Check 12h mute
+                const mutedUntil = localStorage.getItem('announcement_muted_until');
+                if (mutedUntil && Date.now() < parseInt(mutedUntil, 10)) return;
+
+                const res = await fetch('/api/announcement');
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data && data.success && data.announcement && data.announcement.trim().length > 0) {
+                    const modal = document.getElementById('announcementModal');
+                    const content = document.getElementById('announcementContent');
+                    content.innerHTML = data.announcement;
+                    modal.classList.add('show');
+                    document.getElementById('announcementAction').focus();
+                }
+            } catch (e) {
+                console.error('Announcement fetch failed', e);
+            }
+        }
+
+        function closeAnnouncementModal() {
+            const modal = document.getElementById('announcementModal');
+            const card = modal.querySelector('.ann-card');
+            card.style.animation = 'none';
+            card.offsetHeight;
+            card.style.transition = 'opacity .25s ease, transform .25s ease';
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(10px) scale(.98)';
+            setTimeout(() => {
+                modal.classList.remove('show');
+                card.style.transition = '';
+                card.style.opacity = '';
+                card.style.transform = '';
+                card.style.animation = '';
+            }, 260);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(checkAnnouncementAndShow, 800);
+
+            // "Đã hiểu" — just close
+            document.getElementById('announcementAction').addEventListener('click', () => {
+                closeAnnouncementModal();
+            });
+
+            // "Không hiện trong 12h" — mute for 12 hours then close
+            document.getElementById('announcementMute').addEventListener('click', () => {
+                const twelveHours = 12 * 60 * 60 * 1000;
+                localStorage.setItem('announcement_muted_until', String(Date.now() + twelveHours));
+                closeAnnouncementModal();
+            });
+
+            // X button — just close
+            document.getElementById('announcementCloseX').addEventListener('click', () => {
+                closeAnnouncementModal();
+            });
+
+            // Close on backdrop click
+            document.querySelector('.ann-backdrop')?.addEventListener('click', () => {
+                closeAnnouncementModal();
+            });
+        });
+    </script>
+
+    <script src="email-renderer.js"></script>
     <script src="app.js"></script>
 </body>
+
 </html>

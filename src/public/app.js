@@ -125,6 +125,7 @@ let currentMessageCount = 0
 let currentMessages = []
 let viewingMessageIndex = null
 let displayedMessageIds = new Set()
+let moaktSessionExpiredHandled = false
 
 // API Request Queue - để đảm bảo API calls chạy tuần tự
 let apiQueue = []
@@ -160,19 +161,55 @@ function processEmailHTML(html) {
   if (!html || typeof html !== 'string') {
     return html
   }
-  
+
   // Create a temporary div to parse HTML
   const temp = document.createElement('div')
   temp.innerHTML = html
-  
+
   // Find all <a> tags and add target="_blank" and rel="noopener noreferrer"
   const links = temp.querySelectorAll('a')
   links.forEach(link => {
     link.setAttribute('target', '_blank')
     link.setAttribute('rel', 'noopener noreferrer')
   })
-  
+
   return temp.innerHTML
+}
+
+const EMPTY_MESSAGE_HTML =
+  '<p style="color: var(--gray); text-align: center; padding: 40px;">Không có nội dung</p>'
+
+/**
+ * Status / loading / error text inside detail pane (not email HTML)
+ */
+function setDetailStatus(html) {
+  const detailContent = document.getElementById('detailContent')
+  if (!detailContent) return
+  detailContent.innerHTML = html
+}
+
+/**
+ * Render email body isolated in sandboxed iframe so mobile/fixed
+ * templates cannot break the desktop page layout.
+ */
+function setDetailEmailBody(html) {
+  const detailContent = document.getElementById('detailContent')
+  if (!detailContent) return
+
+  const processed = processEmailHTML(html)
+  if (!processed || (typeof processed === 'string' && !processed.trim())) {
+    detailContent.innerHTML = EMPTY_MESSAGE_HTML
+    return
+  }
+
+  if (globalThis.EmailRenderer && typeof EmailRenderer.render === 'function') {
+    EmailRenderer.render(detailContent, processed)
+    return
+  }
+
+  // Fallback: still contain overflow if renderer script failed to load
+  detailContent.innerHTML =
+    '<div class="email-html-fallback">' + processed + '</div>'
 }
 
 async function apiCall(endpoint, method = 'GET', payload = null) {
@@ -334,7 +371,14 @@ const toastIcons = {
 }
 
 function showToast(message, type = 'info') {
-  const toast = document.getElementById('toast')
+  const container = document.getElementById('toastContainer')
+
+  // Giới hạn 5 toast cùng lúc
+  while (container.children.length >= 5) {
+    container.removeChild(container.firstChild)
+  }
+
+  const toast = document.createElement('div')
   toast.className = 'toast ' + type
   toast.innerHTML = `
         <i class="fas ${toastIcons[type]}"></i>
@@ -342,8 +386,15 @@ function showToast(message, type = 'info') {
             <div class="toast-message">${message}</div>
         </div>
     `
-  toast.classList.add('show')
-  setTimeout(() => toast.classList.remove('show'), 3000)
+  container.appendChild(toast)
+
+  // Auto hide sau 3s
+  setTimeout(() => {
+    toast.classList.add('hiding')
+    setTimeout(() => {
+      if (toast.parentNode) toast.parentNode.removeChild(toast)
+    }, 350)
+  }, 3000)
 }
 
 async function init() {
@@ -374,9 +425,15 @@ async function init() {
           source === 'noopmail' ||
           source === 'temporarymail' ||
           source === 'mailio' ||
+          source === 'etempmail' ||
+          source === 'priyo' ||
           source === 'pmail' ||
           source === 'tinyhost' ||
-          source === 'apple'
+          source === 'apple' ||
+          source === 'generatoremail' ||
+          source === 'moakt' ||
+          source === 'tempmailapi' ||
+          source === 'inboxes'
         ) {
           const secretKey =
             source === 'temporarymail'
@@ -386,11 +443,15 @@ async function init() {
             source === 'mailio'
               ? localStorage.getItem('mailioToken')
               : source === 'apple'
-              ? localStorage.getItem('appleToken')
-              : null
+                ? localStorage.getItem('appleToken')
+                : null
           const cookies =
             source === 'edumail'
               ? localStorage.getItem('edumailCookies')
+              : null
+          const tempmailapiPassword =
+            source === 'tempmailapi'
+              ? localStorage.getItem('tempmailapiPassword')
               : null
 
           await apiCall('/api/email/sync', 'POST', {
@@ -398,6 +459,7 @@ async function init() {
             secretKey: secretKey,
             token: token,
             cookies: cookies,
+            tempmailapiPassword: tempmailapiPassword,
           })
         }
         await refreshMessages()
@@ -408,6 +470,7 @@ async function init() {
         localStorage.removeItem('mailioToken')
         localStorage.removeItem('edumailCookies')
         localStorage.removeItem('appleToken')
+        localStorage.removeItem('tempmailapiPassword')
         currentEmail = null
         updateEmailDisplay(null)
         displayedMessageIds.clear()
@@ -427,6 +490,9 @@ async function init() {
             }
             if (result.cookies) {
               localStorage.setItem('edumailCookies', result.cookies)
+            }
+            if (result.password) {
+              localStorage.setItem('tempmailapiPassword', result.password)
             }
             updateEmailDisplay(result.email)
             displayedMessageIds.clear()
@@ -473,6 +539,9 @@ async function init() {
           }
           if (result.cookies) {
             localStorage.setItem('edumailCookies', result.cookies)
+          }
+          if (result.password) {
+            localStorage.setItem('tempmailapiPassword', result.password)
           }
           updateEmailDisplay(result.email)
           displayedMessageIds.clear()
@@ -543,6 +612,9 @@ async function switchMailSource() {
             } else if (source === 'apple') {
               localStorage.setItem('appleToken', emailResult.token)
             }
+          }
+          if (emailResult.password) {
+            localStorage.setItem('tempmailapiPassword', emailResult.password)
           }
           updateEmailDisplay(emailResult.email)
           displayedMessageIds.clear()
@@ -656,7 +728,11 @@ function closeCreateModal() {
 async function createEmailFromModal() {
   const mailSource = localStorage.getItem('mailSource') || 'noopmail'
   const username = document.getElementById('username').value.trim()
-  const domain = document.getElementById('domain').value
+  let domain = document.getElementById('domain').value
+  // Chặn value rác từ dropdown ("null" / rỗng) — backend sẽ tự lấy domain qua /api/rd
+  if (!domain || domain === 'null' || domain === 'undefined' || !domain.includes('.')) {
+    domain = null
+  }
 
   // TempMail ID và eTempMail không bắt buộc username (có thể null để random)
   if (mailSource !== 'tempmail-id' && mailSource !== 'etempmail') {
@@ -703,6 +779,9 @@ async function createEmailFromModal() {
       if (result.cookies) {
         localStorage.setItem('edumailCookies', result.cookies)
       }
+      if (result.password) {
+        localStorage.setItem('tempmailapiPassword', result.password)
+      }
       updateEmailDisplay(result.email)
       document.getElementById('username').value = ''
       displayedMessageIds.clear()
@@ -719,6 +798,7 @@ async function createEmailFromModal() {
             email: result.email,
             secretKey: result.secretKey || null,
             token: result.token || null,
+            tempmailapiPassword: result.password || null,
           })
           debugLog('[CreateEmail] Sync completed')
         } catch (syncError) {
@@ -731,6 +811,7 @@ async function createEmailFromModal() {
       await refreshMessages()
       hideLoading()
       showToast('✓ Email mới đã được tạo!', 'success')
+      loadSiteStats() // Cập nhật stats ngay
 
       if (
         source === 'tempmail-id' ||
@@ -773,6 +854,9 @@ async function createRandomEmail() {
       if (result.cookies) {
         localStorage.setItem('edumailCookies', result.cookies)
       }
+      if (result.password) {
+        localStorage.setItem('tempmailapiPassword', result.password)
+      }
       updateEmailDisplay(result.email)
       displayedMessageIds.clear()
 
@@ -788,6 +872,7 @@ async function createRandomEmail() {
             email: result.email,
             secretKey: result.secretKey || null,
             token: result.token || null,
+            tempmailapiPassword: result.password || null,
           })
           debugLog('[CreateRandomEmail] Sync completed')
         } catch (syncError) {
@@ -799,6 +884,7 @@ async function createRandomEmail() {
       showSkeletonMessages(3)
       await refreshMessages()
       showToast('✓ Email của bạn đã sẵn sàng!', 'success')
+      loadSiteStats() // Cập nhật stats ngay
 
       if (
         source === 'tempmail-id' ||
@@ -840,6 +926,9 @@ async function createRandomEmailManual() {
       if (result.cookies) {
         localStorage.setItem('edumailCookies', result.cookies)
       }
+      if (result.password) {
+        localStorage.setItem('tempmailapiPassword', result.password)
+      }
       updateEmailDisplay(result.email)
       displayedMessageIds.clear()
 
@@ -855,6 +944,7 @@ async function createRandomEmailManual() {
             email: result.email,
             secretKey: result.secretKey || null,
             token: result.token || null,
+            tempmailapiPassword: result.password || null,
           })
           debugLog('[CreateRandomEmailManual] Sync completed')
         } catch (syncError) {
@@ -918,6 +1008,8 @@ async function refreshMessages(silent = false) {
         // Dùng queue thay vì gọi trực tiếp
         const result = await queueApiCall('/api/messages')
         if (result.success) {
+          moaktSessionExpiredHandled = false
+
           const count = result.count || 0
           const oldCount = currentMessageCount
           currentMessages = result.messages || []
@@ -932,6 +1024,7 @@ async function refreshMessages(silent = false) {
                 '📬 Bạn có ' + (count - oldCount) + ' thư mới!',
                 'info'
               )
+              loadSiteStats()
             }
           } else {
             currentMessageCount = count
@@ -941,10 +1034,30 @@ async function refreshMessages(silent = false) {
                 '📬 Có ' + (count - oldCount) + ' thư mới!',
                 'info'
               )
+              loadSiteStats()
             }
           }
         } else {
-          if (!silent) {
+          if (result.sessionExpired && !moaktSessionExpiredHandled) {
+            moaktSessionExpiredHandled = true
+            currentEmail = null
+            currentMessages = []
+            currentMessageCount = 0
+            viewingMessageIndex = null
+            displayedMessageIds.clear()
+            localStorage.removeItem('tempMailLastEmail')
+            localStorage.removeItem('tempMailLastEmailTime')
+            updateEmailDisplay(null)
+            displayMessages([], true)
+            document.getElementById('messageCount').textContent = '0 thư'
+            document.getElementById('messagesListView')?.classList.remove('hide')
+            document.getElementById('messageDetailView')?.classList.remove('show')
+            if (autoRefreshInterval) {
+              clearInterval(autoRefreshInterval)
+              autoRefreshInterval = null
+            }
+            showToast('Phiên Moakt đã hết hạn. Vui lòng tạo email mới.', 'error')
+          } else if (!silent) {
             showToast(result.error, 'error')
           }
         }
@@ -1025,7 +1138,7 @@ function displayMessages(messages, clearAll = false) {
         if (cardElement) {
           const timeElement = cardElement.querySelector('.message-time')
           if (timeElement) {
-            const timeStr = message.datediff || message.date || 'N/A'
+            const timeStr = formatDateLocal(message.datediff || message.date) || 'N/A'
             timeElement.innerHTML = '<i class="fas fa-clock"></i> ' + timeStr
           }
         }
@@ -1034,6 +1147,54 @@ function displayMessages(messages, clearAll = false) {
   }
 
   currentMessageCount = messages.length
+}
+
+/**
+ * Format date string sang thời gian tương đối (VN = UTC+7)
+ * Input: "Sun, 08 Mar 2026 06:29:06 +0000 (UTC)" hoặc bất kỳ date string
+ * Output: "5 phút trước", "2 giờ trước", "3 ngày trước"
+ */
+function formatDateLocal(dateStr) {
+  if (!dateStr) return null;
+  try {
+    // Loại bỏ phần "(UTC)" nếu có để Date() parse được
+    const cleaned = dateStr.replace(/\s*\(UTC\)\s*$/, '').trim();
+    const date = new Date(cleaned);
+    if (isNaN(date.getTime())) return dateStr;
+
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHour = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHour / 24);
+
+    if (diffSec < 0) return 'Vừa xong';
+    if (diffSec < 60) return 'Vừa xong';
+    if (diffMin < 60) return `${diffMin} phút trước`;
+    if (diffHour < 24) return `${diffHour} giờ trước`;
+    if (diffDay < 7) return `${diffDay} ngày trước`;
+    if (diffDay < 30) return `${Math.floor(diffDay / 7)} tuần trước`;
+
+    // Quá 30 ngày thì hiện ngày tháng
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
+    return `${day}/${month}/${year} ${hour}:${minute}`;
+  } catch (e) {
+    return dateStr;
+  }
+}
+
+function escapeHtmlText(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
 }
 
 function createMessageCard(message, index) {
@@ -1047,16 +1208,19 @@ function createMessageCard(message, index) {
       .trim()
     : ''
   const previewText = preview.length > 120 ? preview.substring(0, 120) + '...' : preview
-  const senderName = message.sender_name || 'Không rõ'
-  const senderEmail = message.sender_email || ''
-  const timeStr = message.datediff || message.date || 'N/A'
+  const senderName = escapeHtmlText(message.sender_name || 'Không rõ')
+  const senderEmail = escapeHtmlText(message.sender_email || '')
+  const subject = escapeHtmlText(message.subject || 'Không có tiêu đề')
+  const messageId = escapeHtmlText(message.id || '')
+  const timeStr = escapeHtmlText(formatDateLocal(message.datediff || message.date) || 'N/A')
+  const safePreviewText = escapeHtmlText(previewText)
   const attachments =
     message.attachments && message.attachments.length > 0
       ? `<div class="message-attachments"><i class="fas fa-paperclip"></i> ${message.attachments.length} file đính kèm</div>`
       : ''
 
   return `
-        <div class="message-card" onclick="viewMessageDetail(${index})" data-index="${index}" data-id="${message.id}">
+        <div class="message-card" onclick="viewMessageDetail(${index})" data-index="${index}" data-id="${messageId}">
             <div class="message-header">
                 <div class="message-info">
                     <div class="message-sender">
@@ -1064,13 +1228,13 @@ function createMessageCard(message, index) {
                         ${senderName}
                     </div>
                     ${senderEmail ? `<div class="message-email">${senderEmail}</div>` : ''}
-                    <div class="message-subject">${message.subject || 'Không có tiêu đề'}</div>
+                    <div class="message-subject">${subject}</div>
                 </div>
                 <div class="message-time">
                     <i class="fas fa-clock"></i> ${timeStr}
                 </div>
             </div>
-            ${previewText ? `<div class="message-preview">${previewText}</div>` : ''}
+            ${safePreviewText ? `<div class="message-preview">${safePreviewText}</div>` : ''}
             ${attachments}
         </div>
     `
@@ -1088,24 +1252,28 @@ async function viewMessageDetail(index) {
 
   const message = currentMessages[index]
   viewingMessageIndex = index
+  const safeSubject = escapeHtmlText(message.subject || 'Không có tiêu đề')
+  const safeSenderName = escapeHtmlText(message.sender_name || 'Không rõ')
+  const safeSenderEmail = escapeHtmlText(message.sender_email || '')
+  const safeTime = escapeHtmlText(formatDateLocal(message.datediff || message.date) || 'N/A')
 
   const detailHeader = document.getElementById('detailHeader')
   detailHeader.innerHTML = `
-        <div class="detail-subject">${message.subject || 'Không có tiêu đề'}</div>
+        <div class="detail-subject">${safeSubject}</div>
         <div class="detail-meta">
             <div class="detail-meta-item">
                 <i class="fas fa-user"></i>
-                <strong>${message.sender_name || 'Không rõ'}</strong>
+                <strong>${safeSenderName}</strong>
             </div>
             ${message.sender_email ? `
             <div class="detail-meta-item">
                 <i class="fas fa-envelope"></i>
-                ${message.sender_email}
+                ${safeSenderEmail}
             </div>
             ` : ''}
             <div class="detail-meta-item">
                 <i class="fas fa-clock"></i>
-                ${message.datediff || message.date || 'N/A'}
+                ${safeTime}
             </div>
             ${message.attachments && message.attachments.length > 0 ? `
             <div class="detail-meta-item">
@@ -1116,9 +1284,9 @@ async function viewMessageDetail(index) {
         </div>
     `
 
-  const detailContent = document.getElementById('detailContent')
-  detailContent.innerHTML =
+  setDetailStatus(
     '<p style="color: var(--gray); text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin"></i> Đang tải nội dung...</p>'
+  )
 
   document.getElementById('messagesListView').classList.add('hide')
   document.getElementById('messageDetailView').classList.add('show')
@@ -1143,8 +1311,7 @@ async function viewMessageDetail(index) {
           html = message.content || message.content_raw || ''
         }
       }
-      detailContent.innerHTML = processEmailHTML(html) ||
-        '<p style="color: var(--gray); text-align: center; padding: 40px;">Không có nội dung</p>'
+      setDetailEmailBody(html)
     } else {
       // Chưa có content, gọi API
       try {
@@ -1162,8 +1329,7 @@ async function viewMessageDetail(index) {
               content = result.message.content
             }
           }
-          detailContent.innerHTML = processEmailHTML(content) ||
-            '<p style="color: var(--gray); text-align: center; padding: 40px;">Không có nội dung</p>'
+          setDetailEmailBody(content)
 
           currentMessages[index].content =
             result.message.content || result.message.content_raw || ''
@@ -1173,21 +1339,25 @@ async function viewMessageDetail(index) {
             currentMessages[index].html = result.message.html
           }
         } else {
-          detailContent.innerHTML =
-            '<p style="color: var(--gray); text-align: center; padding: 40px;">Không có nội dung</p>'
+          setDetailStatus(EMPTY_MESSAGE_HTML)
         }
       } catch (error) {
-        detailContent.innerHTML =
+        setDetailStatus(
           '<p style="color: var(--gray); text-align: center; padding: 40px;">Lỗi: ' +
-          error.message +
-          '</p>'
+            escapeHtmlText(error.message) +
+            '</p>'
+        )
       }
     }
   } else {
     if (
       (source === 'tempmail-id' ||
         source === 'noopmail' ||
-        source === 'temporarymail') &&
+        source === 'temporarymail' ||
+        source === 'generatoremail' ||
+        source === 'moakt' ||
+        source === 'tempmailapi' ||
+        source === 'inboxes') &&
       message.id
     ) {
       const isNoopMail = source === 'noopmail' || !message.html
@@ -1207,8 +1377,7 @@ async function viewMessageDetail(index) {
             html = message.content || message.content_raw || ''
           }
         }
-        detailContent.innerHTML = processEmailHTML(html) ||
-          '<p style="color: var(--gray); text-align: center; padding: 40px;">Không có nội dung</p>'
+        setDetailEmailBody(html)
       } else {
         try {
           const result = await apiCall('/api/message/' + message.id, 'GET')
@@ -1225,8 +1394,7 @@ async function viewMessageDetail(index) {
                 content = result.message.content
               }
             }
-            detailContent.innerHTML = processEmailHTML(content) ||
-              '<p style="color: var(--gray); text-align: center; padding: 40px;">Không có nội dung</p>'
+            setDetailEmailBody(content)
 
             currentMessages[index].content =
               result.message.content || result.message.content_raw || ''
@@ -1236,26 +1404,17 @@ async function viewMessageDetail(index) {
               currentMessages[index].html = result.message.html
             }
           } else {
-            detailContent.innerHTML = processEmailHTML(
-              message.content ||
-              message.content_raw
-            ) || '<p style="color: var(--gray); text-align: center; padding: 40px;">Không có nội dung</p>'
+            setDetailEmailBody(message.content || message.content_raw)
             if (result.error) {
               // Không thể lấy nội dung đầy đủ
             }
           }
         } catch (error) {
-          detailContent.innerHTML = processEmailHTML(
-            message.content ||
-            message.content_raw
-          ) || '<p style="color: var(--gray); text-align: center; padding: 40px;">Không có nội dung</p>'
+          setDetailEmailBody(message.content || message.content_raw)
         }
       }
     } else {
-      detailContent.innerHTML = processEmailHTML(
-        message.content ||
-        message.content_raw
-      ) || '<p style="color: var(--gray); text-align: center; padding: 40px;">Không có nội dung</p>'
+      setDetailEmailBody(message.content || message.content_raw)
     }
   }
 }
@@ -1364,6 +1523,9 @@ async function confirmDeleteEmail() {
               } else if (source === 'apple') {
                 localStorage.setItem('appleToken', emailResult.token)
               }
+            }
+            if (emailResult.password) {
+              localStorage.setItem('tempmailapiPassword', emailResult.password)
             }
             updateEmailDisplay(emailResult.email)
             displayedMessageIds.clear()
@@ -1496,21 +1658,19 @@ function startAutoRefresh() {
 
 async function loadIPInfo() {
   try {
-    const response = await fetch('https://ipwho.is/')
+    const response = await fetch('/api/ipinfo')
     const data = await response.json()
 
-    if (data.success && data.ip) {
+    if (data.ip) {
       const ipInfoContent = document.getElementById('ipInfoContent')
       let html = ''
 
-      if (data.ip) {
-        html += `
+      html += `
                     <div class="ip-info-item">
                         <i class="fas fa-network-wired"></i>
                         <strong>IP:</strong>
                         <span>${data.ip}</span>
                     </div>`
-      }
 
       if (data.city) {
         html += `
@@ -1672,158 +1832,158 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     })
   }
-})
+});
 
-  // ============================================
-  // Code moved from index.html
-  // ============================================
+// ============================================
+// Code moved from index.html
+// ============================================
 
-  // Override createEmailFromModal để bỏ qua validation username cho etempmail
-  // Phải làm ngay (không đợi DOMContentLoaded) để override trước khi app.js load
-  (function () {
-    // Đợi app.js load xong
-    let checkAttempts = 0;
-    const maxAttempts = 50;
-    const maxOverrideAttempts = 50;
-    const checkInterval = setInterval(function () {
-      // Kiểm tra xem createEmailFromModal đã được định nghĩa chưa
-      if (typeof window.createEmailFromModal === 'function' && !window.createEmailFromModal._overridden) {
-        const originalCreateEmailFromModal = window.createEmailFromModal;
-        window.createEmailFromModal = function () {
-          // Lấy mail source hiện tại
-          const mailSource = document.getElementById('mailSource');
-          const selectedSource = mailSource ? mailSource.value : 'noopmail';
+// Override createEmailFromModal để bỏ qua validation username cho etempmail
+// Phải làm ngay (không đợi DOMContentLoaded) để override trước khi app.js load
+(function () {
+  // Đợi app.js load xong
+  let checkAttempts = 0;
+  const maxAttempts = 50;
+  const maxOverrideAttempts = 50;
+  const checkInterval = setInterval(function () {
+    // Kiểm tra xem createEmailFromModal đã được định nghĩa chưa
+    if (typeof window.createEmailFromModal === 'function' && !window.createEmailFromModal._overridden) {
+      const originalCreateEmailFromModal = window.createEmailFromModal;
+      window.createEmailFromModal = function () {
+        // Lấy mail source hiện tại
+        const mailSource = document.getElementById('mailSource');
+        const selectedSource = mailSource ? mailSource.value : 'noopmail';
 
-          // Nếu là etempmail hoặc tempmail-id, đảm bảo username là empty và không validate
-          if (selectedSource === 'etempmail' || selectedSource === 'tempmail-id') {
-            const usernameInput = document.getElementById('username');
-            if (usernameInput) {
-              usernameInput.value = ''; // Xóa username
-              usernameInput.removeAttribute('required'); // Xóa required nếu có
-            }
-
-            // Bỏ qua validation - gọi trực tiếp API
-            const domainSelect = document.getElementById('domain');
-            const domain = domainSelect ? domainSelect.value : null;
-
-            if (!domain) {
-              // Hiển thị lỗi nếu chưa chọn domain
-              if (typeof window.showToast === 'function') {
-                window.showToast('Vui lòng chọn domain!', 'error');
-              } else if (typeof window.showError === 'function') {
-                window.showError('Vui lòng chọn domain!');
-              } else {
-                alert('Vui lòng chọn domain!');
-              }
-              return;
-            }
-
-            // Gọi API trực tiếp với username = null
-            if (typeof window.apiCall === 'function') {
-              const apiPromise = window.apiCall('/api/email/create', 'POST', { username: null, domain: domain });
-
-              // Xử lý promise nếu có
-              if (apiPromise && typeof apiPromise.then === 'function') {
-                apiPromise.then(function (result) {
-                  // Đóng modal và cập nhật UI nếu thành công
-                  if (result && result.success) {
-                    // Cập nhật email hiển thị
-                    const currentEmailEl = document.getElementById('currentEmail');
-                    if (currentEmailEl && result.email) {
-                      currentEmailEl.innerHTML = result.email;
-                      currentEmailEl.classList.remove('email-empty');
-
-                      // Hiển thị copy button
-                      const copyBtn = document.getElementById('copyBtn');
-                      if (copyBtn) {
-                        copyBtn.style.display = 'block';
-                      }
-                    }
-
-                    // Refresh messages nếu có function
-                    if (typeof window.refreshMessages === 'function') {
-                      setTimeout(function () {
-                        window.refreshMessages();
-                      }, 500);
-                    }
-
-                    // Đóng modal
-                    const createModal = document.getElementById('createModal');
-                    if (createModal && typeof window.closeCreateModal === 'function') {
-                      window.closeCreateModal();
-                    }
-
-                    // Hiển thị thông báo thành công
-                    if (typeof window.showToast === 'function') {
-                      window.showToast('Email đã được tạo thành công!', 'success');
-                    }
-                  }
-                }).catch(function (error) {
-                  // API call error
-                });
-              }
-
-              return apiPromise;
-            } else if (typeof window.createEmail === 'function') {
-              const createPromise = window.createEmail(null, domain);
-
-              if (createPromise && typeof createPromise.then === 'function') {
-                createPromise.then(function (result) {
-                  if (result && result.success) {
-                    // Cập nhật email hiển thị
-                    const currentEmailEl = document.getElementById('currentEmail');
-                    if (currentEmailEl && result.email) {
-                      currentEmailEl.innerHTML = result.email;
-                      currentEmailEl.classList.remove('email-empty');
-
-                      // Hiển thị copy button
-                      const copyBtn = document.getElementById('copyBtn');
-                      if (copyBtn) {
-                        copyBtn.style.display = 'block';
-                      }
-                    }
-
-                    // Refresh messages nếu có function
-                    if (typeof window.refreshMessages === 'function') {
-                      setTimeout(function () {
-                        window.refreshMessages();
-                      }, 500);
-                    }
-
-                    // Đóng modal
-                    const createModal = document.getElementById('createModal');
-                    if (createModal && typeof window.closeCreateModal === 'function') {
-                      window.closeCreateModal();
-                    }
-
-                    // Hiển thị thông báo thành công
-                    if (typeof window.showToast === 'function') {
-                      window.showToast('Email đã được tạo thành công!', 'success');
-                    }
-                  }
-                }).catch(function (error) {
-                  // createEmail error
-                });
-              }
-
-              return createPromise;
-            } else {
-              // No apiCall or createEmail function found
-            }
+        // Nếu là etempmail hoặc tempmail-id, đảm bảo username là empty và không validate
+        if (selectedSource === 'etempmail' || selectedSource === 'tempmail-id') {
+          const usernameInput = document.getElementById('username');
+          if (usernameInput) {
+            usernameInput.value = ''; // Xóa username
+            usernameInput.removeAttribute('required'); // Xóa required nếu có
           }
 
-          // Gọi function gốc cho các source khác
-          return originalCreateEmailFromModal.apply(this, arguments);
-        };
-        window.createEmailFromModal._overridden = true;
-        clearInterval(checkInterval);
-      }
-      checkAttempts++;
-      if (checkAttempts >= maxOverrideAttempts) {
-        clearInterval(checkInterval);
-      }
-    }, 100);
-  })();
+          // Bỏ qua validation - gọi trực tiếp API
+          const domainSelect = document.getElementById('domain');
+          const domain = domainSelect ? domainSelect.value : null;
+
+          if (!domain) {
+            // Hiển thị lỗi nếu chưa chọn domain
+            if (typeof window.showToast === 'function') {
+              window.showToast('Vui lòng chọn domain!', 'error');
+            } else if (typeof window.showError === 'function') {
+              window.showError('Vui lòng chọn domain!');
+            } else {
+              alert('Vui lòng chọn domain!');
+            }
+            return;
+          }
+
+          // Gọi API trực tiếp với username = null
+          if (typeof window.apiCall === 'function') {
+            const apiPromise = window.apiCall('/api/email/create', 'POST', { username: null, domain: domain });
+
+            // Xử lý promise nếu có
+            if (apiPromise && typeof apiPromise.then === 'function') {
+              apiPromise.then(function (result) {
+                // Đóng modal và cập nhật UI nếu thành công
+                if (result && result.success) {
+                  // Cập nhật email hiển thị
+                  const currentEmailEl = document.getElementById('currentEmail');
+                  if (currentEmailEl && result.email) {
+                    currentEmailEl.innerHTML = result.email;
+                    currentEmailEl.classList.remove('email-empty');
+
+                    // Hiển thị copy button
+                    const copyBtn = document.getElementById('copyBtn');
+                    if (copyBtn) {
+                      copyBtn.style.display = 'block';
+                    }
+                  }
+
+                  // Refresh messages nếu có function
+                  if (typeof window.refreshMessages === 'function') {
+                    setTimeout(function () {
+                      window.refreshMessages();
+                    }, 500);
+                  }
+
+                  // Đóng modal
+                  const createModal = document.getElementById('createModal');
+                  if (createModal && typeof window.closeCreateModal === 'function') {
+                    window.closeCreateModal();
+                  }
+
+                  // Hiển thị thông báo thành công
+                  if (typeof window.showToast === 'function') {
+                    window.showToast('Email đã được tạo thành công!', 'success');
+                  }
+                }
+              }).catch(function (error) {
+                // API call error
+              });
+            }
+
+            return apiPromise;
+          } else if (typeof window.createEmail === 'function') {
+            const createPromise = window.createEmail(null, domain);
+
+            if (createPromise && typeof createPromise.then === 'function') {
+              createPromise.then(function (result) {
+                if (result && result.success) {
+                  // Cập nhật email hiển thị
+                  const currentEmailEl = document.getElementById('currentEmail');
+                  if (currentEmailEl && result.email) {
+                    currentEmailEl.innerHTML = result.email;
+                    currentEmailEl.classList.remove('email-empty');
+
+                    // Hiển thị copy button
+                    const copyBtn = document.getElementById('copyBtn');
+                    if (copyBtn) {
+                      copyBtn.style.display = 'block';
+                    }
+                  }
+
+                  // Refresh messages nếu có function
+                  if (typeof window.refreshMessages === 'function') {
+                    setTimeout(function () {
+                      window.refreshMessages();
+                    }, 500);
+                  }
+
+                  // Đóng modal
+                  const createModal = document.getElementById('createModal');
+                  if (createModal && typeof window.closeCreateModal === 'function') {
+                    window.closeCreateModal();
+                  }
+
+                  // Hiển thị thông báo thành công
+                  if (typeof window.showToast === 'function') {
+                    window.showToast('Email đã được tạo thành công!', 'success');
+                  }
+                }
+              }).catch(function (error) {
+                // createEmail error
+              });
+            }
+
+            return createPromise;
+          } else {
+            // No apiCall or createEmail function found
+          }
+        }
+
+        // Gọi function gốc cho các source khác
+        return originalCreateEmailFromModal.apply(this, arguments);
+      };
+      window.createEmailFromModal._overridden = true;
+      clearInterval(checkInterval);
+    }
+    checkAttempts++;
+    if (checkAttempts >= maxOverrideAttempts) {
+      clearInterval(checkInterval);
+    }
+  }, 100);
+})();
 
 // Xử lý ẩn/hiện username field khi chọn nguồn mail
 function updateUsernameFieldVisibility() {
@@ -2005,7 +2165,11 @@ async function loadEnabledSources() {
         'etempmail': 'eTempMail',
         'tinyhost': 'TinyHost',
         'edumail': 'EduMail',
-        'apple': 'Apple.edu'
+        'apple': 'Apple.edu',
+        'generatoremail': 'Generator.email',
+        'moakt': 'Moakt.com',
+        'tempmailapi': 'TempMailAPI',
+        'inboxes': 'Inboxes'
       };
 
       // Xóa sạch dropdown cũ
@@ -2051,3 +2215,267 @@ if (document.readyState === 'loading') {
   loadEnabledSources();
 }
 
+// ============================================
+// VIDEO DOWNLOADER MODULE
+// ============================================
+
+function openVideoModal() {
+  var modal = document.getElementById('videoModal');
+  modal.classList.add('show');
+  document.getElementById('videoUrl').value = '';
+  document.getElementById('videoResults').style.display = 'none';
+  document.getElementById('videoResults').innerHTML = '';
+  document.getElementById('videoError').style.display = 'none';
+  document.getElementById('videoUrl').focus();
+}
+
+function closeVideoModal() {
+  document.getElementById('videoModal').classList.remove('show');
+}
+
+async function fetchVideoData() {
+  var url = document.getElementById('videoUrl').value.trim();
+  if (!url) {
+    showToast('Vui lòng nhập URL video', 'error');
+    return;
+  }
+  var fetchBtn = document.getElementById('fetchVideoBtn');
+  var resultsDiv = document.getElementById('videoResults');
+  var errorDiv = document.getElementById('videoError');
+  errorDiv.style.display = 'none';
+  resultsDiv.style.display = 'block';
+  resultsDiv.innerHTML = '<div class="video-loading"><i class="fas fa-spinner fa-spin"></i><p>Đang tìm video... Vui lòng đợi</p></div>';
+  // Custom loading: giữ nguyên kích thước button
+  var originalBtnHTML = fetchBtn.innerHTML;
+  fetchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tìm...';
+  fetchBtn.disabled = true;
+  try {
+    var result = await apiCall('/api/video/download', 'POST', { url: url });
+    if (!result.success) {
+      throw new Error(result.error || 'Không thể tải video');
+    }
+    renderVideoResults(result.data, result.platform, url);
+  } catch (error) {
+    resultsDiv.style.display = 'none';
+    errorDiv.style.display = 'block';
+    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + (error.message || 'Lỗi không xác định');
+  } finally {
+    fetchBtn.innerHTML = originalBtnHTML;
+    fetchBtn.disabled = false;
+  }
+}
+
+function renderVideoResults(data, platform, originalUrl) {
+  var resultsDiv = document.getElementById('videoResults');
+  var platformColors = {
+    youtube: '#FF0000', tiktok: '#000000', facebook: '#1877F2',
+    instagram: '#E4405F', twitter: '#1DA1F2', spotify: '#1DB954',
+    reddit: '#FF4500', pinterest: '#E60023', soundcloud: '#FF5500',
+    dailymotion: '#0066DC', unknown: '#6366f1'
+  };
+  var title = data.title || 'Video';
+  var thumbnail = data.thumbnail || '';
+  var duration = data.duration ? formatVideoDuration(data.duration) : '';
+  var color = platformColors[platform] || platformColors.unknown;
+  var html = '<div class="video-info-card"><div class="video-info-header">';
+  if (thumbnail) {
+    html += '<img src="' + thumbnail + '" alt="Thumbnail" class="video-thumbnail" onerror="this.style.display=\'none\'">';
+  }
+  html += '<div class="video-meta">';
+  html += '<h4>' + escapeVideoHtml(title) + '</h4>';
+  html += '<span class="video-platform-badge" style="background:' + color + '">' + platform.toUpperCase() + '</span>';
+  if (duration) html += '<div class="video-duration"><i class="fas fa-clock"></i> ' + duration + '</div>';
+  html += '</div></div>';
+  // Video section
+  if (data.videos && data.videos.length > 0) {
+    html += '<div class="video-section-label"><i class="fas fa-film"></i> Video</div>';
+    html += '<div class="video-download-links">';
+    data.videos.forEach(function (v) {
+      var label = v.quality || v.format || 'Video';
+      var size = v.size || '';
+      if (platform === 'youtube') {
+        var escapedUrl = escapeVideoHtml(v.url).replace(/'/g, "\\'");
+        html += '<a href="javascript:void(0)" class="video-download-link" onclick="handleYTSaveClick(this, \'' + escapedUrl + '\')">'
+        html += '<div class="dl-info"><span>' + escapeVideoHtml(label) + '</span>';
+        if (size) html += '<span class="dl-badge">' + escapeVideoHtml(size) + '</span>';
+        html += '</div>';
+        html += '<i class="fas fa-download"></i></a>';
+      } else {
+        html += createVideoDownloadLink(v.url, label, size, platform, v.format || 'mp4');
+      }
+    });
+    html += '</div>';
+  }
+  // Audio section
+  if (data.audios && data.audios.length > 0) {
+    html += '<div class="video-section-label"><i class="fas fa-music"></i> Audio</div>';
+    html += '<div class="video-download-links">';
+    data.audios.forEach(function (a) {
+      var label = a.quality || a.format || 'Audio';
+      var size = a.size || '';
+      if (platform === 'youtube') {
+        var escapedUrl = escapeVideoHtml(a.url).replace(/'/g, "\\'");
+        html += '<a href="javascript:void(0)" class="video-download-link" onclick="handleYTSaveClick(this, \'' + escapedUrl + '\')">'
+        html += '<div class="dl-info"><span>' + escapeVideoHtml(label) + '</span>';
+        if (size) html += '<span class="dl-badge">' + escapeVideoHtml(size) + '</span>';
+        html += '</div>';
+        html += '<i class="fas fa-download"></i></a>';
+      } else {
+        html += createVideoDownloadLink(a.url, label, size, platform, a.format || 'mp3');
+      }
+    });
+    html += '</div>';
+  }
+  // Generic downloads (TikTok, Twitter, etc.)
+  if (data.downloads && data.downloads.length > 0) {
+    html += '<div class="video-section-label"><i class="fas fa-download"></i> Tải xuống</div>';
+    html += '<div class="video-download-links">';
+    data.downloads.forEach(function (d, i) {
+      var label = d.text || d.quality || ('Download ' + (i + 1));
+      html += createVideoDownloadLink(d.url, label, '', platform);
+    });
+    html += '</div>';
+  }
+  if (data.downloadUrl || data.download_url) {
+    html += '<div class="video-download-links">';
+    html += createVideoDownloadLink(data.downloadUrl || data.download_url, '⬇️ Tải xuống', '');
+    html += '</div>';
+  }
+  if (data.data && Array.isArray(data.data)) {
+    html += '<div class="video-download-links">';
+    data.data.forEach(function (item, i) {
+      if (item.url) {
+        html += createVideoDownloadLink(item.url, '⬇️ Download ' + (i + 1), '');
+      }
+    });
+    html += '</div>';
+  }
+  html += '</div>';
+  resultsDiv.innerHTML = html;
+}
+
+function createVideoDownloadLink(url, label, badge, platform, format) {
+  if (!url) return '';
+  var badgeHtml = badge ? ('<span class="dl-badge">' + escapeVideoHtml(badge) + '</span>') : '';
+  // Dùng proxy download cho TikTok, Twitter, v.v. để tải về thay vì mở tab mới
+  var useProxy = platform && ['tiktok', 'twitter'].indexOf(platform) !== -1;
+  var downloadUrl = url;
+  if (useProxy) {
+    var ext = format || 'mp4';
+    var filename = (platform || 'video') + '_' + Date.now() + '.' + ext;
+    downloadUrl = '/api/video/proxy-download?url=' + encodeURIComponent(url) + '&filename=' + encodeURIComponent(filename);
+  }
+  return '<a href="' + downloadUrl + '"' + (useProxy ? '' : ' target="_blank" rel="noopener noreferrer"') + ' class="video-download-link">' +
+    '<div class="dl-info"><span>' + escapeVideoHtml(label) + '</span>' + badgeHtml + '</div>' +
+    '<i class="fas fa-download"></i></a>';
+}
+
+function formatVideoDuration(seconds) {
+  if (!seconds || isNaN(seconds)) return '';
+  var h = Math.floor(seconds / 3600);
+  var m = Math.floor((seconds % 3600) / 60);
+  var s = Math.floor(seconds % 60);
+  if (h > 0) return h + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+function escapeVideoHtml(text) {
+  var div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+async function handleYTSaveClick(btn, mediaUrl) {
+  var origHtml = btn.innerHTML;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+  btn.style.pointerEvents = 'none';
+  btn.onclick = null;
+
+  async function pollDownload() {
+    try {
+      var data = await apiCall('/api/video/youtube/ytsave', 'POST', { url: mediaUrl });
+      console.log('[YTSave] Response:', data);
+      if (data.status === 'completed' && data.fileUrl) {
+        btn.innerHTML = '<i class="fas fa-check"></i> Hoàn tất!';
+        // Mở link download
+        var a = document.createElement('a');
+        a.href = data.fileUrl;
+        a.target = '_blank';
+        a.download = data.fileName || 'video.mp4';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () {
+          btn.innerHTML = origHtml;
+          btn.style.pointerEvents = '';
+          btn.onclick = function () { handleYTSaveClick(btn, mediaUrl); };
+        }, 2000);
+      } else if (data.status === 'processing') {
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (data.progress || 'Đang render...');
+        setTimeout(pollDownload, 2000);
+      } else {
+        btn.innerHTML = origHtml;
+        btn.style.pointerEvents = '';
+        btn.onclick = function () { handleYTSaveClick(btn, mediaUrl); };
+        alert('Lỗi tải video. Thử lại sau.');
+      }
+    } catch (err) {
+      console.error('[YTSave] Error:', err);
+      btn.innerHTML = origHtml;
+      btn.style.pointerEvents = '';
+      btn.onclick = function () { handleYTSaveClick(btn, mediaUrl); };
+      alert('Lỗi: ' + err.message);
+    }
+  }
+  pollDownload();
+}
+
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' && document.getElementById('videoModal').classList.contains('show')) {
+    var activeEl = document.activeElement;
+    if (activeEl && activeEl.id === 'videoUrl') {
+      fetchVideoData();
+    }
+  }
+});
+
+// ===== SITE STATS FOOTER =====
+async function loadSiteStats() {
+  try {
+    const res = await fetch('/api/site-stats')
+    const data = await res.json()
+    console.log('[Stats] API response:', data)
+    if (data.success) {
+      const emailEl = document.getElementById('statEmails')
+      const receivedEl = document.getElementById('statReceived')
+      const onlineEl = document.getElementById('statOnline')
+      console.log('[Stats] Elements found:', !!emailEl, !!receivedEl, !!onlineEl)
+      if (emailEl) emailEl.textContent = (data.emailsCreated || 0).toLocaleString()
+      if (receivedEl) receivedEl.textContent = (data.messagesReceived || 0).toLocaleString()
+      if (onlineEl) onlineEl.textContent = (data.onlineUsers || 0).toLocaleString()
+      console.log('[Stats] Updated to:', data.emailsCreated, data.messagesReceived, data.onlineUsers)
+    }
+  } catch (e) {
+    console.error('[Stats] Error:', e)
+  }
+}
+
+// Load stats ngay và mỗi 5 giây
+loadSiteStats()
+setInterval(loadSiteStats, 5000)
+
+// Heartbeat — ping /api/check mỗi 5 giây để track online users
+async function heartbeat() {
+  try {
+    const res = await fetch('/api/check', { method: 'POST' })
+    const data = await res.json()
+    if (data.success) {
+      const onlineEl = document.getElementById('statOnline')
+      if (onlineEl) onlineEl.textContent = (data.online || 1).toLocaleString()
+    }
+  } catch (e) {
+    // Silent fail
+  }
+}
+heartbeat()
+setInterval(heartbeat, 5000)
