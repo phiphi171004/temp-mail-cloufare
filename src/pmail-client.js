@@ -9,12 +9,13 @@ import { simpleParser } from 'mailparser';
 export class PMailClient {
   constructor() {
     this.domains = [
+      'playmaker.id.vn',
       'mmocoffee.io.vn',
       'phatdinh24.id.vn',
-      'playmaker.id.vn',
-      'shopaccsheap.pro.vn'
+      'pphimchill.app',
+      'mailp.tech'
     ];
-    this.defaultDomain = 'mmocoffee.io.vn';
+    this.defaultDomain = 'playmaker.id.vn'; // Domain có nhiều emails nhất
     this.currentEmail = null;
     this.forwardEmail = 'phiphi19784321@gmail.com';
 
@@ -162,10 +163,9 @@ export class PMailClient {
             });
           }
 
-          // OPTIMIZATION: Search chỉ messages mới (trong 7 ngày gần nhất)
-          // Hoặc có thể dùng UNSEEN để chỉ lấy messages chưa đọc
+          // OPTIMIZATION: Search chỉ messages mới (trong 1 giờ gần nhất để tìm nhanh)
           const searchDate = new Date();
-          searchDate.setDate(searchDate.getDate() - 7); // 7 ngày gần nhất
+          searchDate.setHours(searchDate.getHours() - 1); // 1 giờ gần nhất
 
           // Search criteria: messages trong 7 ngày gần nhất
           const searchCriteria = [
@@ -192,10 +192,10 @@ export class PMailClient {
               });
             }
 
-            // OPTIMIZATION: Giới hạn chỉ lấy 50 messages mới nhất
-            const maxMessages = 50;
+            // OPTIMIZATION: Giới hạn chỉ lấy 100 messages mới nhất (tăng từ 50)
+            const maxMessages = 100;
             const messagesToFetch = results.length > maxMessages
-              ? results.slice(-maxMessages) // Lấy 50 messages cuối (mới nhất)
+              ? results.slice(-maxMessages) // Lấy 100 messages cuối (mới nhất)
               : results;
 
             console.log(`[PMAIL] Fetching ${messagesToFetch.length}/${results.length} messages...`);
@@ -274,10 +274,21 @@ export class PMailClient {
 
                     // QUAN TRỌNG: Check trong body của email (có thể chứa "tới:" hoặc "To:" với email tạm)
                     const emailBody = (parsed.text || parsed.html || '').toLowerCase();
-                    const bodyContainsTargetEmail = emailBody.includes(`tới: ${targetEmail}`) ||
+                    
+                    // Extract username và domain từ target email
+                    const [targetUsername, targetDomain] = targetEmail.split('@');
+                    
+                    // Check nhiều điều kiện để match linh hoạt hơn
+                    const bodyContainsTargetEmail = 
+                      emailBody.includes(targetEmail) || 
+                      emailBody.includes(`tới: ${targetEmail}`) ||
                       emailBody.includes(`to: ${targetEmail}`) ||
                       emailBody.includes(`>${targetEmail}<`) ||
-                      emailBody.includes(`"${targetEmail}"`);
+                      emailBody.includes(`"${targetEmail}"`) ||
+                      // Check username trong subject (có thể email forward có username trong subject)
+                      (parsed.subject || '').toLowerCase().includes(targetUsername) ||
+                      // Check domain trong subject
+                      (parsed.subject || '').toLowerCase().includes(targetDomain);
 
                     // Kiểm tra tất cả các trường hợp
                     const allAddresses = [
@@ -339,18 +350,13 @@ export class PMailClient {
                       messages.push(formattedMessage);
                     } else {
                       // Debug: Log message đầu tiên không match để kiểm tra (chỉ log 1 lần)
-                      if (processedCount === 1 && messages.length === 0) {
-                        console.log('[PMAIL] Debug - Message không match:', {
-                          targetEmail: targetEmail,
-                          toAddresses: toAddresses,
-                          deliveredTo: deliveredTo || '(empty)',
-                          envelopeTo: envelopeTo || '(empty)',
-                          originalTo: originalTo || '(empty)',
-                          forwardedFor: forwardedFor || '(empty)',
-                          bodyContainsTarget: bodyContainsTargetEmail,
-                          subject: parsed.subject,
-                          from: parsed.from?.value[0]?.address || ''
-                        });
+                      if (processedCount === 0 && messages.length === 0) {
+                        console.log('[PMAIL] Debug - First message không match:');
+                        console.log('   Target:', targetEmail);
+                        console.log('   Subject:', parsed.subject);
+                        console.log('   From:', parsed.from?.value?.[0]?.address || '');
+                        console.log('   To addresses:', toAddresses.join(', '));
+                        console.log('   Body preview:', emailBody.substring(0, 200).replace(/\s+/g, ' '));
                       }
                     }
 

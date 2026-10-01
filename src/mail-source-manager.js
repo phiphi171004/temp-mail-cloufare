@@ -68,8 +68,8 @@ export class MailSourceManager {
       'pmail': {
         name: 'PMAIL (Mail Forward)',
         client: null,
-        domains: ['mmocoffee.io.vn', 'phatdinh24.id.vn', 'playmaker.id.vn', 'shopaccsheap.pro.vn'],
-        defaultDomain: 'mmocoffee.io.vn'
+        domains: ['playmaker.id.vn', 'mmocoffee.io.vn', 'phatdinh24.id.vn', 'pphimchill.app', 'mailp.tech'],
+        defaultDomain: 'playmaker.id.vn'
       },
       'tinyhost': {
         name: 'TinyHost (tinyhost.shop)',

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Gửi Email Test - PMAIL</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 { color: #333; margin: 0 0 20px 0; font-size: 28px; }
+        .email-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        .email-address {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            margin: 10px 5px;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-gmail {
+            background: #ea4335;
+            color: white;
+        }
+        .btn-outlook {
+            background: #0078d4;
+            color: white;
+        }
+        .btn-yahoo {
+            background: #6001d2;
+            color: white;
+        }
+        .instructions {
+            background: #fff9e6;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border-left: 4px solid #ffc107;
+        }
+        .instructions h3 { 
+            margin-top: 0;
+            color: #f57c00;
+        }
+        .step {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 3px solid #4CAF50;
+        }
+        .step-num {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .alert {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>📧 Gửi Email Test cho PMAIL</h1>
+        
+        <div class="alert">
+            <strong>⚡ QUAN TRỌNG:</strong> PMAIL cần có email thật gửi đến domain để hoạt động!
+        </div>
+
+        <div class="email-box">
+            <div>📬 Gửi email test đến:</div>
+            <div class="email-address" id="targetEmail">mup97midwz976n@playmaker.id.vn</div>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <button class="btn btn-gmail" onclick="sendViaGmail()">
+                📧 Gửi qua Gmail
+            </button>
+            <button class="btn btn-outlook" onclick="sendViaOutlook()">
+                📧 Gửi qua Outlook
+            </button>
+            <button class="btn btn-yahoo" onclick="sendViaYahoo()">
+                📧 Gửi qua Yahoo
+            </button>
+        </div>
+
+        <div class="instructions">
+            <h3>📝 Hướng dẫn:</h3>
+            
+            <div class="step">
+                <span class="step-num">1</span>
+                Click nút "Gửi qua Gmail/Outlook/Yahoo" ở trên
+            </div>
+
+            <div class="step">
+                <span class="step-num">2</span>
+                Email client sẽ mở với nội dung đã được điền sẵn
+            </div>
+
+            <div class="step">
+                <span class="step-num">3</span>
+                Click nút <strong>"Send"</strong> để gửi email
+            </div>
+
+            <div class="step">
+                <span class="step-num">4</span>
+                Đợi <strong>10-30 giây</strong> để email được deliver + forward
+            </div>
+
+            <div class="step">
+                <span class="step-num">5</span>
+                Reload trang web app (<code>http://localhost:3000</code>)
+            </div>
+
+            <div class="step">
+                <span class="step-num">6</span>
+                Email sẽ xuất hiện trong inbox! 🎉
+            </div>
+        </div>
+
+        <div class="alert" style="margin-top: 30px;">
+            <strong>💡 Lưu ý:</strong> 
+            <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>Gửi từ email KHÁC (không phải phiphi19784321@gmail.com)</li>
+                <li>Email sẽ được Cloudflare forward về phiphi19784321@gmail.com</li>
+                <li>PMAIL sẽ tìm email trong Gmail inbox</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const targetEmail = 'mup97midwz976n@playmaker.id.vn';
+        
+        function sendViaGmail() {
+            const subject = encodeURIComponent(`Test PMAIL - ${targetEmail}`);
+            const body = encodeURIComponent(
+                `Hello!\n\n` +
+                `This is a test email for PMAIL service.\n\n` +
+                `Target: ${targetEmail}\n` +
+                `Timestamp: ${new Date().toISOString()}\n\n` +
+                `If you see this in the web app, PMAIL is working! 🎉`
+            );
+            
+            window.open(
+                `https://mail.google.com/mail/?view=cm&fs=1&to=${targetEmail}&su=${subject}&body=${body}`,
+                '_blank'
+            );
+        }
+
+        function sendViaOutlook() {
+            const subject = encodeURIComponent(`Test PMAIL - ${targetEmail}`);
+            const body = encodeURIComponent(
+                `Hello!\n\n` +
+                `This is a test email for PMAIL service.\n\n` +
+                `Target: ${targetEmail}\n` +
+                `Timestamp: ${new Date().toISOString()}\n\n` +
+                `If you see this in the web app, PMAIL is working! 🎉`
+            );
+            
+            window.open(
+                `https://outlook.live.com/mail/0/deeplink/compose?to=${targetEmail}&subject=${subject}&body=${body}`,
+                '_blank'
+            );
+        }
+
+        function sendViaYahoo() {
+            const subject = encodeURIComponent(`Test PMAIL - ${targetEmail}`);
+            const body = encodeURIComponent(
+                `Hello!\n\n` +
+                `This is a test email for PMAIL service.\n\n` +
+                `Target: ${targetEmail}\n` +
+                `Timestamp: ${new Date().toISOString()}\n\n` +
+                `If you see this in the web app, PMAIL is working! 🎉`
+            );
+            
+            window.open(
+                `https://mail.yahoo.com/d/compose?to=${targetEmail}&subject=${subject}&body=${body}`,
+                '_blank'
+            );
+        }
+    </script>
+</body>
+</html>
