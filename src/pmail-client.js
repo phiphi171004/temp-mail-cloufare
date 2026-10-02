@@ -10,10 +10,10 @@ export class PMailClient {
   constructor() {
     this.domains = [
       'playmaker.id.vn',
-      'mmocoffee.io.vn',
       'phatdinh24.id.vn',
       'pphimchill.app',
-      'mailp.tech'
+      'mailp.tech',
+      'lhu-dashboard.me'
     ];
     this.defaultDomain = 'playmaker.id.vn'; // Domain có nhiều emails nhất
     this.currentEmail = null;
@@ -75,10 +75,14 @@ export class PMailClient {
         };
       }
 
-      // Chọn domain
-      const selectedDomain = domain && this.domains.includes(domain)
-        ? domain
-        : this.defaultDomain;
+      // Chọn domain: nếu không có domain thì random từ list
+      let selectedDomain;
+      if (domain && this.domains.includes(domain)) {
+        selectedDomain = domain;
+      } else {
+        // Random domain từ danh sách
+        selectedDomain = this.domains[Math.floor(Math.random() * this.domains.length)];
+      }
 
       const email = `${username}@${selectedDomain}`;
       this.currentEmail = email;
@@ -108,6 +112,16 @@ export class PMailClient {
       username += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return username;
+  }
+
+  /**
+   * Tạo email random (cả username VÀ domain)
+   */
+  async createRandomEmail() {
+    const username = this.generateRandomUsername();
+    // Random domain từ list
+    const domain = this.domains[Math.floor(Math.random() * this.domains.length)];
+    return await this.createEmail(username, domain);
   }
 
   /**

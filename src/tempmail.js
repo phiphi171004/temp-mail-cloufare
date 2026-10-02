@@ -1312,8 +1312,8 @@ export class TempMail {
       };
     }
 
-    if (this.sourceId === 'noopmail' || this.sourceId === 'mailio' || this.sourceId === 'temporarymail' || this.sourceId === 'priyo' || this.sourceId === 'apple' || this.sourceId === 'generatoremail' || this.sourceId === 'moakt' || this.sourceId === 'tempmailapi' || this.sourceId === 'inboxes') {
-      // TempMail ID, NoopMail, MailIO, TemporaryMail, Priyo và Apple: Gọi trực tiếp method createRandomEmail
+    if (this.sourceId === 'noopmail' || this.sourceId === 'mailio' || this.sourceId === 'temporarymail' || this.sourceId === 'priyo' || this.sourceId === 'apple' || this.sourceId === 'generatoremail' || this.sourceId === 'moakt' || this.sourceId === 'tempmailapi' || this.sourceId === 'inboxes' || this.sourceId === 'pmail') {
+      // TempMail ID, NoopMail, MailIO, TemporaryMail, Priyo, Apple, GeneratorEmail, Moakt, TempMailAPI, Inboxes và PMAIL: Gọi trực tiếp method createRandomEmail
       try {
         // Starting createRandomEmail
 
