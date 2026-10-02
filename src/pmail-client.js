@@ -146,7 +146,7 @@ export class PMailClient {
       }
       this.lastFetchTime = now;
 
-      console.log('[PMAIL] Fetching messages for:', this.currentEmail);
+      console.log(`[PMAIL] Fetching messages for: ${this.currentEmail}`);
 
       const imap = new Imap(this.imapConfig);
       const messages = [];
@@ -163,14 +163,16 @@ export class PMailClient {
             });
           }
 
-          // OPTIMIZATION: Search chỉ messages mới (trong 1 giờ gần nhất để tìm nhanh)
-          const searchDate = new Date();
-          searchDate.setHours(searchDate.getHours() - 1); // 1 giờ gần nhất
-
-          // Search criteria: messages trong 7 ngày gần nhất
+          // Search TẤT CẢ emails gửi đến target (không giới hạn thời gian)
+          // Gmail server tự filter - NHANH!
           const searchCriteria = [
-            ['SINCE', searchDate]
+            ['OR',
+              ['TO', this.currentEmail],
+              ['CC', this.currentEmail]
+            ]
           ];
+
+          console.log(`[PMAIL] Searching all emails sent to: ${this.currentEmail}`);
 
           imap.search(searchCriteria, (err, results) => {
             if (err) {
@@ -192,22 +194,34 @@ export class PMailClient {
               });
             }
 
-            // OPTIMIZATION: Giới hạn chỉ lấy 100 messages mới nhất (tăng từ 50)
+            // Gmail đã filter → Chỉ lấy 100 emails mới nhất
             const maxMessages = 100;
             const messagesToFetch = results.length > maxMessages
-              ? results.slice(-maxMessages) // Lấy 100 messages cuối (mới nhất)
+              ? results.slice(-maxMessages)
               : results;
+            
+            console.log(`[PMAIL] Found ${results.length} emails, fetching ${messagesToFetch.length}`);
 
-            console.log(`[PMAIL] Fetching ${messagesToFetch.length}/${results.length} messages...`);
-
-            // Fetch full message (RFC822 format) để simpleParser có thể parse đúng
-            // Empty string '' = fetch toàn bộ message
+            // Fetch full message để có body
             const fetch = imap.fetch(messagesToFetch, {
-              bodies: '', // Fetch full message (RFC822)
+              bodies: '',
               struct: true
             });
 
             let processedCount = 0;
+            let errorCount = 0;
+
+            // TIMEOUT: Nếu fetch quá 30 giây thì return kết quả hiện tại
+            const fetchTimeout = setTimeout(() => {
+              console.log(`[PMAIL] Fetch timeout! Processed: ${processedCount}/${messagesToFetch.length}, Returning current results...`);
+              imap.end();
+              resolve({
+                success: true,
+                messages: messages,
+                count: messages.length,
+                timeout: true
+              });
+            }, 30000);
 
             fetch.on('message', (msg, seqno) => {
               let buffer = '';
@@ -219,26 +233,14 @@ export class PMailClient {
               });
 
               msg.once('end', () => {
-                // Debug: Check buffer length
-                if (processedCount === 0) {
-                  console.log(`[PMAIL] First message buffer length: ${buffer.length} bytes`);
-                }
+                processedCount++;
+                console.log(`[PMAIL] Processing ${processedCount}/${messagesToFetch.length}`);
 
                 simpleParser(buffer)
                   .then((parsed) => {
                     const targetEmail = this.currentEmail.toLowerCase();
 
-                    // Debug: Log first parsed message structure
-                    if (processedCount === 0) {
-                      console.log('[PMAIL] First parsed message:', {
-                        hasTo: !!parsed.to,
-                        hasFrom: !!parsed.from,
-                        hasSubject: !!parsed.subject,
-                        hasHeaders: !!parsed.headers,
-                        hasText: !!parsed.text,
-                        hasHtml: !!parsed.html
-                      });
-                    }
+                    // Skip debug logging
 
                     // Lấy tất cả các địa chỉ email từ các trường khác nhau
                     const toAddresses = [
@@ -348,23 +350,16 @@ export class PMailClient {
                       };
 
                       messages.push(formattedMessage);
-                    } else {
-                      // Debug: Log message đầu tiên không match để kiểm tra (chỉ log 1 lần)
-                      if (processedCount === 0 && messages.length === 0) {
-                        console.log('[PMAIL] Debug - First message không match:');
-                        console.log('   Target:', targetEmail);
-                        console.log('   Subject:', parsed.subject);
-                        console.log('   From:', parsed.from?.value?.[0]?.address || '');
-                        console.log('   To addresses:', toAddresses.join(', '));
-                        console.log('   Body preview:', emailBody.substring(0, 200).replace(/\s+/g, ' '));
-                      }
                     }
+                    // Skip debug logging for non-matching messages
 
-                    processedCount++;
-                    if (processedCount === results.length) {
+                    if (processedCount === messagesToFetch.length) {
+                      clearTimeout(fetchTimeout);
                       // Sort messages by timestamp (newest first)
                       messages.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
+                      console.log(`[PMAIL] Found ${messages.length} message(s)`);
+                      
                       imap.end();
                       resolve({
                         success: true,
@@ -375,14 +370,16 @@ export class PMailClient {
                   })
                   .catch((parseError) => {
                     console.error('[PMAIL] Error parsing message:', parseError);
-                    processedCount++;
-                    if (processedCount === results.length) {
+                    errorCount++;
+                    if (processedCount === messagesToFetch.length) {
+                      clearTimeout(fetchTimeout);
                       messages.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
                       imap.end();
                       resolve({
                         success: true,
                         messages: messages,
-                        count: messages.length
+                        count: messages.length,
+                        errors: errorCount
                       });
                     }
                   });
@@ -390,13 +387,20 @@ export class PMailClient {
             });
 
             fetch.once('error', (err) => {
+              clearTimeout(fetchTimeout);
+              console.error('[PMAIL] Fetch error:', err);
               imap.end();
               resolve({
                 success: false,
                 error: `Lỗi fetch messages: ${err.message}`,
-                messages: [],
-                count: 0
+                messages: messages,
+                count: messages.length
               });
+            });
+
+            fetch.once('end', () => {
+              clearTimeout(fetchTimeout);
+              console.log(`[PMAIL] Fetch completed: ${processedCount}/${messagesToFetch.length} messages processed`);
             });
           });
         });
